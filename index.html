@@ -3,18 +3,28 @@
   <head>
     <meta charset="utf-8">
     <title>Olá, mundo</title>
+    <style>
+      span{
+        display: block;
+      }
+    </style>
   </head>
   <body>
       <h1> Hello, World! </h1>
       <p>isto é um arquivo HTML</p>
       <button onclick="addNumero()">Clique-me</button>
-      <span id="clique"></span>
+      <span id="clique" style="display: block;"></span>
     <script>
-      let num = 0;
+      let num = 0; 
       function addNumero(){
-        num++;
-        document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
-      }
+          num++;
+          document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
+          if ((num % 100) == 0) {
+              var c = document.createElement("span");
+              c.innerHTML = `Você conseguiu ultrapassar de ${num} vezes!`;
+              document.body.appendChild(c);
+          }
+       }
     </script>
   </body>
 </html>

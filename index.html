@@ -44,7 +44,7 @@
          console.error("fui clickado, pra quê?");
         if( erro) return;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
-          if ((num % 100) == 0) { 
+          if ((num % 1000) == 0) { 
               console.error("Pausa de descanso! O botão será desativado por 30 segundos.\nPor mais que isso não seja necessáriamente ruim, caso você esteja no mobile (algo que eu não consigo saber) você teria que ter tocado no mesmo lugar da tela 100 vezes pra chegar até aqui!!!");
            
             
@@ -66,7 +66,7 @@
           
               var c = document.createElement("span");
               c.innerHTML = `Você conseguiu ultrapassar de ${num} vezes!`;
-              if ((num % 1000) == 0) c.setAttribute("style","color: green; font-size: 40px;");
+              if ((num % 10000) == 0) c.setAttribute("style","color: green; font-size: 40px;");
               else c.setAttribute("style","color: blue; font-size: 20px");
               document.body.appendChild(c);
           }

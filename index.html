@@ -16,6 +16,7 @@
       <span id="clique" style="display: block;"></span>
     <script>
       let num = 0;    
+      const botao = document.querySelector('#botao');
       function addNumero(){
           num++;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;

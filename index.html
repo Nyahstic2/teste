@@ -15,16 +15,18 @@
       <button onclick="addNumero()">Clique-me</button>
       <span id="clique" style="display: block;"></span>
     <script>
-      let num = 0; 
+      let num = 0;    
       function addNumero(){
           num++;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 100) == 0) {
               var c = document.createElement("span");
               c.innerHTML = `Você conseguiu ultrapassar de ${num} vezes!`;
+              if ((num % 1000) == 0) c.setAttribute("style","color: red; font-size: 1.5 rem;");
+              else c.setAttribute("style","color: blue; font-size: 0.8 rem;");
               document.body.appendChild(c);
           }
-       }
+      }
     </script>
   </body>
 </html>

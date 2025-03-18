@@ -22,7 +22,7 @@
           num++;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 100) == 0) { 
-              console.error("Pausa de descanso! O botão será desativado por 30 segundos.");
+              console.error("Pausa de descanso! O botão será desativado por 30 segundos.\nPor mais que isso não seja necessáriamente ruim, caso você esteja no mobile (algo que eu não consigo saber) você teria que ter tocado no mesmo lugar da tela 100 vezes pra chegar até aqui!!!");
               botao.disabled = true;
 
             
@@ -30,16 +30,16 @@
         timerElement.id = 'contador'; // Adicionar um ID para facilitar a manipulação
         timerElement.style.marginLeft = '10px'; // Espaçamento para estética
         buttonDiv.appendChild(timerElement); // Adicionar ao DOM, perto do botão
-        let tempoRestante = 30; // Tempo de espera em segundos
+        let tempoRestante = 30000; // Tempo de espera em segundos
         const intervalo = setInterval(() => {
-            timerElement.textContent = ` Tempo restante: ${tempoRestante}s`; // Atualizar o contador
+            timerElement.textContent = ` Tempo restante: ${tempoRestante / 1000}s`; // Atualizar o contador
             tempoRestante--;
-            if (tempoRestante < 0) {
+            if (tempoRestante == 0) {
                 clearInterval(intervalo); // Parar o contador
                 timerElement.remove(); // Remover o contador do DOM
                 botao.disabled = false; // Reativar o botão
             }
-        }, 1000); // Atualização a cada segundo
+        }, 1); // Atualização a cada segundo
             
               setTimeout(() => {
                 botao.disabled = false;

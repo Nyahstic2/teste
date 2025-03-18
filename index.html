@@ -12,6 +12,9 @@
             font-size: 24px;
             animation: fly 2s ease-out forwards;
         }
+      .error{
+        color: red;
+      }
         @keyframes fly {
             0% {
                 font-size: 24px;
@@ -31,12 +34,13 @@
       <span id="clique" style="display: block;"></span>
     <script defer>
       let num = 0;    
+      let erro = false;
       const botao = document.querySelector('#botao');
       const buttonDiv = document.querySelector('#buttonDiv');
       function addNumero(){
         
-          if (tempoRestante == 0) num++;
-          else createParticle();
+          num++;
+          createParticle();
          console.error("fui clickado, pra quê?");
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 100) == 0) { 
@@ -48,12 +52,14 @@
         timerElement.style.marginLeft = '10px'; // Espaçamento para estética
         buttonDiv.appendChild(timerElement); // Adicionar ao DOM, perto do botão
         var tempoRestante = 30000; // Tempo de espera em segundos
+            erro = true;
         const intervalo = setInterval(() => {
-            timerElement.textContent = ` Tempo restante: ${tempoRestante / 1000}s`; // Atualizar o contador
+            timerElement.textContent = ` Tempo restante: ${Math.floor(tempoRestante / 1000)}s`; // Atualizar o contador
             tempoRestante--;
             if (tempoRestante == 0) {
                 clearInterval(intervalo); // Parar o contador
                 timerElement.remove(); // Remover o contador do DOM
+              erro = false;
             }
         }, 1); // Atualização a cada segundo
           
@@ -69,6 +75,7 @@
         function createParticle() {
             const particle = document.createElement('div');
             particle.classList.add('particle');
+            particle.classList.add('error');
             particle.textContent = '1';
             document.body.appendChild(particle);
 

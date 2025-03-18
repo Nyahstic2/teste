@@ -19,6 +19,7 @@
       const botao = document.querySelector('#botao');
       const buttonDiv = document.querySelector('#buttonDiv');
       function addNumero(){
+         console.error("fui clickado, pra quê?");
           num++;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 100) == 0) { 
@@ -40,13 +41,10 @@
                 botao.disabled = false; // Reativar o botão
             }
         }, 1); // Atualização a cada segundo
-            
-              setTimeout(() => {
-                botao.disabled = false;
-              }, 30000);
+          
               var c = document.createElement("span");
               c.innerHTML = `Você conseguiu ultrapassar de ${num} vezes!`;
-              if ((num % 1000) == 0) c.setAttribute("style","color: red; font-size: 1.5 rem;");
+              if ((num % 1000) == 0) c.setAttribute("style","color: green; font-size: 1.5 rem;");
               else c.setAttribute("style","color: blue; font-size: 0.8 rem;");
               document.body.appendChild(c);
           }

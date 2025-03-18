@@ -39,7 +39,7 @@
       const buttonDiv = document.querySelector('#buttonDiv');
       function addNumero(){
         
-          num++;
+          if (!erro) num++;
           createParticle();
          console.error("fui clickado, pra quê?");
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
@@ -75,8 +75,9 @@
         function createParticle() {
             const particle = document.createElement('div');
             particle.classList.add('particle');
-            particle.classList.add('error');
-            particle.textContent = '1';
+            if(erro)particle.classList.add('error');
+            if(!erro)particle.textContent = '1';
+            else particle.textContent = '0';
             document.body.appendChild(particle);
 
             let x = Math.random() * window.innerWidth;

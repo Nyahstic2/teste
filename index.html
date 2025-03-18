@@ -7,5 +7,14 @@
   <body>
       <h1> Hello, World! </h1>
       <p>isto é um arquivo HTML</p>
+      <button onclick="addNumero()">Clique-me</button>
+      <span id="clique"></span>
+    <script>
+      let num = 0;
+      function addNumero(){
+        num++;
+        document.getElementById("clique").innerHTML = `Você clicou ${num} {num == 1 ? "vez" : "vezes"}`;
+      }
+    </script>
   </body>
 </html>

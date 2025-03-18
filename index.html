@@ -42,6 +42,7 @@
           if (!erro) num++;
           createParticle();
          console.error("fui clickado, pra quê?");
+        if( erro) return;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 100) == 0) { 
               console.error("Pausa de descanso! O botão será desativado por 30 segundos.\nPor mais que isso não seja necessáriamente ruim, caso você esteja no mobile (algo que eu não consigo saber) você teria que ter tocado no mesmo lugar da tela 100 vezes pra chegar até aqui!!!");

@@ -12,9 +12,9 @@
   <body>
       <h1> Hello, World! </h1>
       <p>isto é um arquivo HTML</p>
-      <button onclick="addNumero()">Clique-me</button>
+      <button id="botao" onclick="addNumero()">Clique-me</button>
       <span id="clique" style="display: block;"></span>
-    <script>
+    <script defer>
       let num = 0;    
       const botao = document.querySelector('#botao');
       function addNumero(){
@@ -23,6 +23,23 @@
           if ((num % 100) == 0) { 
               console.error("Pausa de descanso! O botão será desativado por 30 segundos.");
               botao.disabled = true;
+
+            
+        const timerElement = document.createElement('span'); // Criar elemento para o contador
+        timerElement.id = 'contador'; // Adicionar um ID para facilitar a manipulação
+        timerElement.style.marginLeft = '10px'; // Espaçamento para estética
+        buttonDiv.appendChild(timerElement); // Adicionar ao DOM, perto do botão
+        let tempoRestante = 30; // Tempo de espera em segundos
+        const intervalo = setInterval(() => {
+            timerElement.textContent = ` Tempo restante: ${tempoRestante}s`; // Atualizar o contador
+            tempoRestante--;
+            if (tempoRestante < 0) {
+                clearInterval(intervalo); // Parar o contador
+                timerElement.remove(); // Remover o contador do DOM
+                botao.disabled = false; // Reativar o botão
+            }
+        }, 1000); // Atualização a cada segundo
+            
               setTimeout(() => {
                 botao.disabled = false;
               }, 30000);

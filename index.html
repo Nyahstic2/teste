@@ -81,8 +81,8 @@
             else particle.textContent = '0';
             document.body.appendChild(particle);
 
-            let x = Math.random() * window.innerWidth;
-            let y = Math.random() * window.innerHeight;
+            let x = Math.random() * window.innerWidth - 30;
+            let y = Math.random() * window.innerHeight - 30;
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
             const xSpeed = Math.random();

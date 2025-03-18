@@ -12,11 +12,12 @@
   <body>
       <h1> Hello, World! </h1>
       <p>isto é um arquivo HTML</p>
-      <button id="botao" onclick="addNumero()">Clique-me</button>
+      <div id="buttonDiv"> <button id="botao" onclick="addNumero()">Clique-me</button> </div>
       <span id="clique" style="display: block;"></span>
     <script defer>
       let num = 0;    
       const botao = document.querySelector('#botao');
+      const buttonDiv = document.querySelector('#buttonDiv');
       function addNumero(){
           num++;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;

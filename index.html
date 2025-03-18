@@ -34,6 +34,9 @@
       const botao = document.querySelector('#botao');
       const buttonDiv = document.querySelector('#buttonDiv');
       function addNumero(){
+        
+          if (tempoRestante == 0) num++;
+          else createParticle();
          console.error("fui clickado, pra quê?");
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 100) == 0) { 
@@ -44,9 +47,7 @@
         timerElement.id = 'contador'; // Adicionar um ID para facilitar a manipulação
         timerElement.style.marginLeft = '10px'; // Espaçamento para estética
         buttonDiv.appendChild(timerElement); // Adicionar ao DOM, perto do botão
-        let tempoRestante = 30000; // Tempo de espera em segundos
-          if (tempoRestante == 0) num++;
-          else createParticle();
+        var tempoRestante = 30000; // Tempo de espera em segundos
         const intervalo = setInterval(() => {
             timerElement.textContent = ` Tempo restante: ${tempoRestante / 1000}s`; // Atualizar o contador
             tempoRestante--;

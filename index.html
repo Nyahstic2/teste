@@ -19,7 +19,12 @@
       function addNumero(){
           num++;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
-          if ((num % 100) == 0) {
+          if ((num % 100) == 0) { 
+              console.error("Pausa de descanso! O botão será desativado por 30 segundos.");
+              botao.disabled = true;
+              setTimeout(() => {
+                botao.disabled = false;
+              }, 30000);
               var c = document.createElement("span");
               c.innerHTML = `Você conseguiu ultrapassar de ${num} vezes!`;
               if ((num % 1000) == 0) c.setAttribute("style","color: red; font-size: 1.5 rem;");

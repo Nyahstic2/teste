@@ -7,6 +7,21 @@
       span{
         display: block;
       }
+       .particle {
+            position: absolute;
+            font-size: 24px;
+            animation: fly 2s ease-out forwards;
+        }
+        @keyframes fly {
+            0% {
+                font-size: 24px;
+                opacity: 1;
+            }
+            100% {
+                font-size: 0px;
+                opacity: 0;
+            }
+        }
     </style>
   </head>
   <body>
@@ -20,7 +35,6 @@
       const buttonDiv = document.querySelector('#buttonDiv');
       function addNumero(){
          console.error("fui clickado, pra quê?");
-          num++;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 100) == 0) { 
               console.error("Pausa de descanso! O botão será desativado por 30 segundos.\nPor mais que isso não seja necessáriamente ruim, caso você esteja no mobile (algo que eu não consigo saber) você teria que ter tocado no mesmo lugar da tela 100 vezes pra chegar até aqui!!!");
@@ -31,6 +45,8 @@
         timerElement.style.marginLeft = '10px'; // Espaçamento para estética
         buttonDiv.appendChild(timerElement); // Adicionar ao DOM, perto do botão
         let tempoRestante = 30000; // Tempo de espera em segundos
+          if (tempoRestante == 0) num++;
+          else createParticle();
         const intervalo = setInterval(() => {
             timerElement.textContent = ` Tempo restante: ${tempoRestante / 1000}s`; // Atualizar o contador
             tempoRestante--;
@@ -47,6 +63,31 @@
               document.body.appendChild(c);
           }
       }
+
+      
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.textContent = '1';
+            document.body.appendChild(particle);
+
+            let x = Math.random() * window.innerWidth;
+            let y = Math.random() * window.innerHeight;
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            const xSpeed = Math.random();
+            let num = setInterval(() => {
+                x-= xSpeed;
+                y--;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+            }, 1);
+            setTimeout(() => {
+                particle.remove();
+                clearInterval(num);
+            }, 2000); // Remove a partícula após 2 segundos
+        }
+    
     </script>
   </body>
 </html>

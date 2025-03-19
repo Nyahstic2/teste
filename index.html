@@ -9,7 +9,7 @@
       }
        .particle {
             position: absolute;
-            font-size: 24px;
+            font-size: 48px;
             animation: fly 2s ease-out forwards;
         }
       .error{
@@ -17,7 +17,7 @@
       }
         @keyframes fly {
             0% {
-                font-size: 24px;
+                font-size: 48px;
                 opacity: 1;
             }
             100% {
@@ -52,7 +52,7 @@
         timerElement.id = 'contador'; // Adicionar um ID para facilitar a manipulação
         timerElement.style.marginLeft = '10px'; // Espaçamento para estética
         buttonDiv.appendChild(timerElement); // Adicionar ao DOM, perto do botão
-        var tempoRestante = 30000; // Tempo de espera em segundos
+        var tempoRestante = 3000; // Tempo de espera em segundos
             erro = true;
         const intervalo = setInterval(() => {
             timerElement.textContent = ` Tempo restante: ${Math.floor(tempoRestante / 1000)}s`; // Atualizar o contador
@@ -85,7 +85,7 @@
             let y = Math.random() * window.innerHeight - 30;
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
-            const xSpeed = Math.random();
+            const xSpeed = Math.random() * Math.floor(math.random() * 10);
             let num = setInterval(() => {
                 x-= xSpeed;
                 y--;
@@ -95,7 +95,7 @@
             setTimeout(() => {
                 particle.remove();
                 clearInterval(num);
-            }, 2000); // Remove a partícula após 2 segundos
+            }, 4000); // Remove a partícula após 2 segundos
         }
     
     </script>

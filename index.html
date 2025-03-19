@@ -37,15 +37,11 @@
       const buttonDiv = document.querySelector('#buttonDiv');
       function addNumero(){
         
-          if (!erro) num++;
+          num+=Math.floor(Math.random() * 10);
           createParticle();
-         console.error("fui clickado, pra quê?");
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 1000) == 0) { 
-              console.error("Pausa de descanso! O botão será desativado por 30 segundos.\nPor mais que isso não seja necessáriamente ruim, caso você esteja no mobile (algo que eu não consigo saber) você teria que ter tocado no mesmo lugar da tela 100 vezes pra chegar até aqui!!!");
-           
-            
-  
+          
         var tempoRestante = 3; // Tempo de espera em segundos
             erro = true;
         const intervalo = setInterval(() => {
@@ -56,11 +52,6 @@
             }
         }, 1000); // Atualização a cada segundo
           
-              var c = document.createElement("span");
-              c.innerHTML = `Você conseguiu ultrapassar de ${num} vezes!`;
-              if ((num % 10000) == 0) c.setAttribute("style","color: green; font-size: 40px;");
-              else c.setAttribute("style","color: blue; font-size: 20px");
-              document.body.appendChild(c);
           }
       }
 
@@ -69,7 +60,7 @@
             const particle = document.createElement('div');
             particle.classList.add('particle');
             if(erro)particle.classList.add('error');
-            if(!erro)particle.textContent = '1';
+            if(!erro)particle.textContent = Math.floor(Math.random() * 10);
             else particle.textContent = '0';
             document.body.appendChild(particle);
 

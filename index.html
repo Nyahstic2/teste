@@ -10,7 +10,7 @@
        .particle {
             position: absolute;
             font-size: 48px;
-            animation: fly 2s ease-out forwards;
+            animation: fly 4s ease-out forwards;
         }
       .error{
         color: red;
@@ -85,7 +85,8 @@
             let y = Math.random() * window.innerHeight - 30;
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
-            const xSpeed = Math.random() * Math.floor(Math.random() * 10);
+            const xSpeed = Math.random() * Math.floor(Math.random() * 2);
+            const ySpeed = Math.random() * Math.floor(Math.random() * 2);
             let num = setInterval(() => {
                 x-= xSpeed;
                 y--;

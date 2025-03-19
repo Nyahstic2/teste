@@ -45,21 +45,16 @@
               console.error("Pausa de descanso! O botão será desativado por 30 segundos.\nPor mais que isso não seja necessáriamente ruim, caso você esteja no mobile (algo que eu não consigo saber) você teria que ter tocado no mesmo lugar da tela 100 vezes pra chegar até aqui!!!");
            
             
-        const timerElement = document.createElement('span'); // Criar elemento para o contador
-        timerElement.id = 'contador'; // Adicionar um ID para facilitar a manipulação
-        timerElement.style.marginLeft = '10px'; // Espaçamento para estética
-        buttonDiv.appendChild(timerElement); // Adicionar ao DOM, perto do botão
-        var tempoRestante = 3000; // Tempo de espera em segundos
+  
+        var tempoRestante = 3; // Tempo de espera em segundos
             erro = true;
         const intervalo = setInterval(() => {
-            timerElement.textContent = ` Tempo restante: ${Math.floor(tempoRestante / 1000)}s`; // Atualizar o contador
             tempoRestante--;
             if (tempoRestante == 0) {
                 clearInterval(intervalo); // Parar o contador
-                timerElement.remove(); // Remover o contador do DOM
               erro = false;
             }
-        }, 1); // Atualização a cada segundo
+        }, 1000); // Atualização a cada segundo
           
               var c = document.createElement("span");
               c.innerHTML = `Você conseguiu ultrapassar de ${num} vezes!`;
@@ -83,7 +78,7 @@
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
             const xSpeed = Math.random() * Math.floor(Math.random() * 2);
-            const ySpeed = Math.random() * Math.floor(Math.random() * 2);
+            const ySpeed = (Math.random() * Math.floor(Math.random() * 2)) + 1;
             let num = setInterval(() => {
                 x-= xSpeed;
                 y-= ySpeed;

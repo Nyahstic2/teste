@@ -9,7 +9,7 @@
       }
        .particle {
             position: absolute;
-            font-size: 48px;
+            font-size: 24px;
             animation: fly 4s ease-out forwards;
         }
       .error{
@@ -17,7 +17,7 @@
       }
         @keyframes fly {
             0% {
-                font-size: 48px;
+                font-size: 24px;
                 opacity: 1;
             }
             100% {
@@ -28,8 +28,6 @@
     </style>
   </head>
   <body>
-      <h1> Hello, World! </h1>
-      <p>isto é um arquivo HTML</p>
       <div id="buttonDiv"> <button id="botao" onclick="addNumero()">Clique-me</button> </div>
       <span id="clique" style="display: block;"></span>
     <script defer>
@@ -42,7 +40,6 @@
           if (!erro) num++;
           createParticle();
          console.error("fui clickado, pra quê?");
-        if( erro) return;
           document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
           if ((num % 1000) == 0) { 
               console.error("Pausa de descanso! O botão será desativado por 30 segundos.\nPor mais que isso não seja necessáriamente ruim, caso você esteja no mobile (algo que eu não consigo saber) você teria que ter tocado no mesmo lugar da tela 100 vezes pra chegar até aqui!!!");
@@ -89,7 +86,7 @@
             const ySpeed = Math.random() * Math.floor(Math.random() * 2);
             let num = setInterval(() => {
                 x-= xSpeed;
-                y--;
+                y-= ySpeed;
                 particle.style.left = `${x}px`;
                 particle.style.top = `${y}px`;
             }, 1);

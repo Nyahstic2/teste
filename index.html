@@ -10,7 +10,7 @@
        .particle {
             position: absolute;
             font-size: 24px;
-            animation: fly 32s cubic-bezier(0, 1.54, 0, 0.69) forwards;
+            animation: fly 32s ease-in-out forwards;
         }
       .error{
         color: red;
@@ -68,8 +68,19 @@
             let y = Math.random() * window.innerHeight - 30;
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
-            const xSpeed = Math.random() * Math.floor(Math.random() * 2);
+            const xSpeed = Math.random() * Math.floor(Math.random() * 4);
             const ySpeed = (Math.random() * Math.floor(Math.random() * 2)) + 1;
+            console.table({
+              name: "particula criada",
+              vel: {
+                x: xSpeed,
+                y: ySpeed
+              },
+              pos: {
+                x: x,
+                y: y,
+              }
+            });
             let num = setInterval(() => {
                 x-= xSpeed;
                 y-= ySpeed;

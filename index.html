@@ -34,40 +34,15 @@
     </style>
   </head>
   <body>
-      <div id="buttonDiv"> <button id="botao" onclick="addNumero()">Clique-me</button> </div>
-      <span id="clique" style="display: block;"></span>
     <script defer>
       let num = 0;    
       let erro = false;
-      const botao = document.querySelector('#botao');
-      const buttonDiv = document.querySelector('#buttonDiv');
-      function addNumero(){
-        
-          num+=Math.floor(Math.random() * 10);
-          createParticle();
-          document.getElementById("clique").innerHTML = `Você clicou ${num} ${num == 1 ? "vez" : "vezes"}`;
-          if ((num % 1000) == 0) { 
-          
-        var tempoRestante = 3; // Tempo de espera em segundos
-            erro = true;
-        const intervalo = setInterval(() => {
-            tempoRestante--;
-            if (tempoRestante == 0) {
-                clearInterval(intervalo); // Parar o contador
-              erro = false;
-            }
-        }, 1000); // Atualização a cada segundo
-          
-          }
-      }
-
       
         function createParticle() {
             const particle = document.createElement('div');
             particle.classList.add('particle');
             if(erro)particle.classList.add('error');
-            if(!erro)particle.textContent = Math.floor(Math.random() * 10);
-            else particle.textContent = '0';
+            particle.textContent = Math.min(Math.floor(Math.random() * 10), 1);
             document.body.appendChild(particle);
 
             let x = Math.random() * window.innerWidth - 30;
@@ -98,7 +73,10 @@
                 clearInterval(num);
             }, 4000); // Remove a partícula após 2 segundos
         }
-    
+
+      setInterval(() => {createParticle();}, 99);
+      setInterval(() => {createParticle();}, 100);
+      setInterval(() => {createParticle();}, 101);
     </script>
   </body>
 </html>

@@ -41,13 +41,20 @@
       let num = 0;    
       let erro = false;
       
-        function createParticle() {
+          function createParticle() {
+            let cor = {
+                r: 0,
+                g: 0,
+                b 0
+            }
             const particle = document.createElement('div');
             particle.classList.add('particle');
             if(erro)particle.classList.add('error');
             particle.textContent = Math.min(Math.floor(Math.random() * 10), 1);
             document.body.appendChild(particle);
-
+            cor.r = Math.random() * 255;
+            cor.g = Math.random() * 255;
+            cor.b = Math.random() * 255;
             let x = Math.random() * window.innerWidth - 30;
             let y = Math.random() * window.innerHeight - 30;
             particle.style.left = `${x}px`;
@@ -68,8 +75,12 @@
             let num = setInterval(() => {
                 x-= xSpeed;
                 y-= ySpeed;
+                cor.r -= cor.r == 0 ? 0 : 0.5;
+                cor.g -= cor.g == 0 ? 0 : 0.5;
+                cor.b -= cor.b == 0 ? 0 : 0.5;
                 particle.style.left = `${x}px`;
                 particle.style.top = `${y}px`;
+                particle.style.color = `rgb(${cor.r}, ${cor.g}, ${cor.b})`;
             }, 1);
             setTimeout(() => {
                 particle.remove();

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página 1</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f0f0f0;
+        text-align: center;
+      }
+      
+      h1 {
+        font-size: 3em;
+        margin-bottom: 20px;
+      }
+      
+      a {
+        text-decoration: none;
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+      }
+      
+      /* Elementos com view-transition-name podem ter estilos customizados */
+      [view-transition-name] {
+        transition: all 0.5s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Marcador para a transição (o mesmo nome deve ser usado na outra página) -->
+    <h1 view-transition-name="title">Página 1</h1>
+    <p>Bem-vindo à Página 1.</p>
+    <a href="arq2.html" id="link">Ir para Página 2</a>
+
+    <script>
+      // Verifica se a View Transition API está disponível para iniciar a transição.
+      const link = document.getElementById("link");
+      if (document.startViewTransition) {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          document.startViewTransition(() => {
+            window.location.href = link.href;
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

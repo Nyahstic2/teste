@@ -14,8 +14,6 @@
     }
     .window {
       position: absolute;
-      width: 300px;
-      height: 200px;
       border: 1px solid #888;
       background: #fff;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
@@ -48,7 +46,7 @@
       font-weight: bold;
       line-height: 18px;
       padding: 0;
-      transition: background 0.2s ease;
+      transition: background 0.2s;
     }
     .title-buttons button.minimize {
       background: #f1c40f;
@@ -88,7 +86,7 @@
       border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
-      transition: background 0.2s ease;
+      transition: background 0.2s;
     }
     #addWindow:hover {
       background: #2980b9;
@@ -105,7 +103,7 @@
       padding: 5px 10px;
       border-radius: 4px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: background 0.2s;
       margin-left: 10px;
     }
     .taskbar-item:hover {
@@ -159,11 +157,29 @@
       padding: 5px;
       font-size: 14px;
     }
+    /* Opções */
+    .options-container h3 {
+      margin-bottom: 5px;
+    }
+    .options-container label {
+      display: block;
+      margin: 5px 0 2px;
+    }
+    .options-container input,
+    .options-container select {
+      width: 100%;
+      padding: 4px;
+      margin-bottom: 5px;
+    }
+    .options-container button {
+      padding: 6px 12px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Taskbar com botão de adicionar e data/hora -->
+  <!-- Taskbar com botão de Adicionar e Data/Hora -->
   <div id="taskbar">
     <button id="addWindow">Adicionar Janela</button>
     <div id="dateTime"></div>
@@ -173,6 +189,7 @@
     <div class="menu-item" data-type="connected">Janela Conectada</div>
     <div class="menu-item" data-type="pet">Pet Virtual</div>
     <div class="menu-item" data-type="rps">Pedra Papel Tesoura</div>
+    <div class="menu-item" data-type="options">Opções</div>
   </div>
 
   <script>
@@ -186,6 +203,12 @@
     const addMenu = document.getElementById('addMenu');
     const dateTimeDiv = document.getElementById('dateTime');
 
+    // Valores padrão para novas janelas e tema/estilo
+    let defaultWindowWidth = 300;
+    let defaultWindowHeight = 200;
+    let currentTheme = "blue"; // opções: blue, red, green, dark
+    let currentBg = "white";   // opções: white, gray, black
+
     // Array global para janelas conectadas
     const connectedWindows = [];
 
@@ -197,13 +220,13 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
-    // Função de arraste dos windows
+    // Movimento das janelas
     document.addEventListener('mousemove', (e) => {
       if (currentDragged) {
         let newX = e.clientX - dragOffsetX;
         let newY = e.clientY - dragOffsetY;
         newX = Math.max(0, Math.min(newX, window.innerWidth - currentDragged.offsetWidth));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - currentDragged.offsetHeight - 40)); // 40px para a taskbar
+        newY = Math.max(0, Math.min(newY, window.innerHeight - currentDragged.offsetHeight - 40));
         currentDragged.style.left = newX + 'px';
         currentDragged.style.top = newY + 'px';
       }
@@ -212,13 +235,13 @@
       currentDragged = null;
     });
 
-    // Traz a janela para o topo
+    // Função que traz uma janela para o topo
     function bringToFront(win) {
       highestZIndex++;
       win.style.zIndex = highestZIndex;
     }
 
-    // Minimiza a janela (cria botão na taskbar para restauração)
+    // Minimiza a janela: cria um botão na taskbar para restauração
     function minimizeWindow(win) {
       if (win._minimized) return;
       win._minimized = true;
@@ -232,9 +255,7 @@
       });
       taskbar.insertBefore(taskbarButton, addWindowBtn.nextSibling);
       win.style.opacity = '0';
-      setTimeout(() => {
-        win.style.display = 'none';
-      }, 300);
+      setTimeout(() => { win.style.display = 'none'; }, 300);
     }
 
     // Restaura a janela minimizada
@@ -249,7 +270,7 @@
       bringToFront(win);
     }
 
-    // Fecha a janela (remove do array se for conectada)
+    // Fecha a janela – se for conectada, também remove do array
     function closeWindow(win) {
       const index = connectedWindows.findIndex(conn => conn.id === win.id);
       if (index !== -1) {
@@ -258,7 +279,7 @@
       if (win.parentNode) win.parentNode.removeChild(win);
     }
 
-    // Aplica eventos básicos à janela (arraste, minimizar, fechar)
+    // Aplica eventos básicos à janela: arraste pela barra, minimizar e fechar
     function applyWindowEvents(win) {
       const titleBar = win.querySelector('.title-bar');
       titleBar.addEventListener('mousedown', (e) => {
@@ -280,26 +301,42 @@
       });
     }
 
-    // Função para enviar mensagem entre as janelas conectadas
-    function broadcastMessage(senderId, message) {
-      connectedWindows.forEach(conn => {
-        const chatArea = conn.chatArea;
-        const msgElement = document.createElement('p');
-        msgElement.innerText = `Janela ${senderId}: ${message}`;
-        chatArea.appendChild(msgElement);
-        chatArea.scrollTop = chatArea.scrollHeight;
+    // Atualiza os estilos de todas as janelas de acordo com o tema e background escolhidos
+    function updateWindowStyles() {
+      const windows = document.querySelectorAll('.window');
+      windows.forEach(win => {
+        const titleBar = win.querySelector('.title-bar');
+        let gradient;
+        if (currentTheme === "blue") {
+          gradient = "linear-gradient(90deg, #3498db, #2980b9)";
+        } else if (currentTheme === "red") {
+          gradient = "linear-gradient(90deg, #e74c3c, #c0392b)";
+        } else if (currentTheme === "green") {
+          gradient = "linear-gradient(90deg, #27ae60, #2ecc71)";
+        } else if (currentTheme === "dark") {
+          gradient = "linear-gradient(90deg, #2c3e50, #34495e)";
+        } else {
+          gradient = "linear-gradient(90deg, #3498db, #2980b9)";
+        }
+        if (titleBar) {
+          titleBar.style.background = gradient;
+        }
+        const content = win.querySelector('.window-content');
+        if (content) {
+          content.style.background = currentBg;
+        }
       });
     }
 
-    /* ---------- Criação das janelas de tipos diferenciados ---------- */
-
-    // 1. Janela Conectada
+    // Janela Conectada: permite enviar um dado aleatório para todas as janelas conectadas
     function createConnectedWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
       win.style.top = (50 + 30 * windowCount) + 'px';
       win.style.left = (50 + 30 * windowCount) + 'px';
+      win.style.width = 300 + "px";
+      win.style.height = 500 + "px";
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
@@ -317,7 +354,7 @@
       document.body.appendChild(win);
       applyWindowEvents(win);
       bringToFront(win);
-      // Registra a janela para comunicação
+      updateWindowStyles();
       const chatArea = win.querySelector('.chat-area');
       connectedWindows.push({ id: win.id, chatArea: chatArea });
       const sendBtn = win.querySelector('.send-btn');
@@ -327,13 +364,15 @@
       });
     }
 
-    // 2. Pet Virtual (substituindo a Calculadora)
+    // Pet Virtual: exibe um pet com níveis de fome e felicidade, com botões para alimentar e brincar
     function createPetWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
       win.style.top = (50 + 30 * windowCount) + 'px';
       win.style.left = (50 + 30 * windowCount) + 'px';
+      win.style.width = 300 + "px";
+      win.style.height = 300 + "px";
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
@@ -355,32 +394,26 @@
       document.body.appendChild(win);
       applyWindowEvents(win);
       bringToFront(win);
-  
-      // Estado inicial do pet
+      updateWindowStyles();
       let hunger = 50, happiness = 50;
       const hungerSpan = document.getElementById(`pet-hunger-${windowCount}`);
       const happinessSpan = document.getElementById(`pet-happiness-${windowCount}`);
       const feedBtn = document.getElementById(`feed-btn-${windowCount}`);
       const playBtn = document.getElementById(`play-btn-${windowCount}`);
-  
       function updateStatus() {
         hungerSpan.innerText = hunger;
         happinessSpan.innerText = happiness;
       }
-  
       feedBtn.addEventListener('click', () => {
         hunger = Math.max(0, hunger - 10);
         happiness = Math.min(100, happiness + 5);
         updateStatus();
       });
-  
       playBtn.addEventListener('click', () => {
         happiness = Math.min(100, happiness + 10);
         hunger = Math.min(100, hunger + 5);
         updateStatus();
       });
-  
-      // Atualização periódica (a cada 5 segundos)
       setInterval(() => {
         hunger = Math.min(100, hunger + 1);
         happiness = Math.max(0, happiness - 1);
@@ -388,13 +421,15 @@
       }, 5000);
     }
 
-    // 3. Pedra Papel Tesoura
+    // Pedra Papel Tesoura: jogo simples contra o computador
     function createRPSWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
       win.style.top = (50 + 30 * windowCount) + 'px';
       win.style.left = (50 + 30 * windowCount) + 'px';
+      win.style.width = 400 + "px";
+      win.style.height = 300 + "px";
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
@@ -417,7 +452,7 @@
       document.body.appendChild(win);
       applyWindowEvents(win);
       bringToFront(win);
-  
+      updateWindowStyles();
       const buttons = win.querySelectorAll('.rps-btn');
       const resultDiv = win.querySelector('.rps-result');
       buttons.forEach(button => {
@@ -442,16 +477,89 @@
       });
     }
 
+    // Opções: permite que o usuário mude o tema, o background e os tamanhos padrão para novas janelas.
+    function createOptionsWindow() {
+      windowCount++;
+      const win = document.createElement('div');
+      win.className = 'window';
+      win.style.top = (50 + 30 * windowCount) + 'px';
+      win.style.left = (50 + 30 * windowCount) + 'px';
+      win.style.width = 500 + "px";
+      win.style.height = 550 + "px";
+      win.id = 'window' + windowCount;
+      win.innerHTML = `
+        <div class="title-bar">
+          <span>Opções</span>
+          <div class="title-buttons">
+            <button class="minimize">&#8211;</button>
+            <button class="close">&#10005;</button>
+          </div>
+        </div>
+        <div class="window-content">
+          <div class="options-container">
+            <h3>Opções de Tema</h3>
+            <label for="themeSelect">Tema:</label>
+            <select id="themeSelect">
+              <option value="blue" ${currentTheme==='blue'?'selected':''}>Azul</option>
+              <option value="red" ${currentTheme==='red'?'selected':''}>Vermelho</option>
+              <option value="green" ${currentTheme==='green'?'selected':''}>Verde</option>
+              <option value="dark" ${currentTheme==='dark'?'selected':''}>Escuro</option>
+            </select>
+            <h3>Opções de Background</h3>
+            <label for="bgSelect">Background das Janelas:</label>
+            <select id="bgSelect">
+              <option value="white" ${currentBg==='white'?'selected':''}>Branco</option>
+              <option value="gray" ${currentBg==='gray'?'selected':''}>Cinza</option>
+              <option value="black" ${currentBg==='black'?'selected':''}>Preto</option>
+            </select>
+            <h3>Tamanho Padrão das Janelas</h3>
+            <label for="defaultWidth">Largura:</label>
+            <input type="number" id="defaultWidth" value="${defaultWindowWidth}">
+            <label for="defaultHeight">Altura:</label>
+            <input type="number" id="defaultHeight" value="${defaultWindowHeight}">
+            <br>
+            <button id="saveOptionsBtn">Salvar Opções</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(win);
+      applyWindowEvents(win);
+      bringToFront(win);
+      updateWindowStyles();
+      const saveBtn = win.querySelector('#saveOptionsBtn');
+      saveBtn.addEventListener('click', () => {
+        const themeSelect = win.querySelector('#themeSelect');
+        const bgSelect = win.querySelector('#bgSelect');
+        const defaultWidthInput = win.querySelector('#defaultWidth');
+        const defaultHeightInput = win.querySelector('#defaultHeight');
+        currentTheme = themeSelect.value;
+        currentBg = bgSelect.value;
+        updateWindowStyles();
+        alert("Opções salvas!");
+      });
+    }
+
+    // Função para enviar mensagem entre as janelas conectadas
+    function broadcastMessage(senderId, message) {
+      connectedWindows.forEach(conn => {
+        const chatArea = conn.chatArea;
+        const msgElement = document.createElement('p');
+        msgElement.innerText = `Janela ${senderId}: ${message}`;
+        chatArea.appendChild(msgElement);
+        chatArea.scrollTop = chatArea.scrollHeight;
+      });
+    }
+
     /* ---------- Lógica do menu de "Adicionar Janela" ---------- */
     addWindowBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (addMenu.style.display === 'block') {
         addMenu.style.display = 'none';
       } else {
-        // Exibe o menu e posiciona-o acima do botão "Adicionar Janela"
         addMenu.style.display = 'block';
         const rect = addWindowBtn.getBoundingClientRect();
         const menuHeight = addMenu.offsetHeight;
+        // Posiciona o menu acima do botão
         addMenu.style.top = (rect.top - menuHeight) + 'px';
         addMenu.style.left = rect.left + 'px';
       }
@@ -470,6 +578,8 @@
           createPetWindow();
         } else if (type === 'rps') {
           createRPSWindow();
+        } else if (type === 'options') {
+          createOptionsWindow();
         }
         addMenu.style.display = 'none';
       });

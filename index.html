@@ -39,7 +39,7 @@
       let num = 0;    
       let erro = false;
       
-          function createParticle() {
+         function createParticle() {
             let cor = {
                 r: 0,
                 g: 0,
@@ -56,32 +56,46 @@
             let x = Math.random() * window.innerWidth - 30;
             let y = Math.random() * window.innerHeight - 30;
             let rot = 0;
+            let colorDie = Math.random();
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
             const xSpeed = Math.random() * Math.floor(Math.random() * 4);
             const ySpeed = (Math.random() * Math.floor(Math.random() * 2)) + 1;
-            const rotSpeed = Math.random() * Math.floor(Math.random() * 4);
+            const rotSpeed = Math.random() * (Math.random() * 4);
             console.table({
-              name: "particula criada",
+              name: {
+                name: "particula criada",
+                posx: '-',
+                posy: '-',
+                speed: '-',
+              },
               vel: {
-                x: xSpeed,
-                y: ySpeed
+                name: "velocidade da partícula",
+                posx: xSpeed,
+                posy: ySpeed,
+                speed: '-',
               },
               pos: {
-                x: x,
-                y: y,
+                name: "posição da partícula",
+                posx: x,
+                posy: y,
+                speed: '-',
               },
               rotation: {
+                name: "rotação",
+                posx: '-',
+                posy: '-',
                 speed: rotSpeed
-              }
+              },
+              cor: cor
             });
             let num = setInterval(() => {
                 x-= xSpeed;
                 y-= ySpeed;
                 rot += rotSpeed;
-                cor.r -= cor.r == 0 ? 0 : 0.5;
-                cor.g -= cor.g == 0 ? 0 : 0.5;
-                cor.b -= cor.b == 0 ? 0 : 0.5;
+                cor.r -= cor.r == 0 ? 0 : colorDie;
+                cor.g -= cor.g == 0 ? 0 : colorDie;
+                cor.b -= cor.b == 0 ? 0 : colorDie;
                 particle.style.left = `${x}px`;
                 particle.style.top = `${y}px`;
                 particle.style.color = `rgb(${cor.r}, ${cor.g}, ${cor.b})`;

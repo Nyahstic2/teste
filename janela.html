@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulação de Janelas</title>
+  <style>
+    /* Estilização básica da página e das janelas */
+    body {
+      margin: 0;
+      background: #f0f0f0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    .window {
+      position: absolute;
+      width: 300px;
+      height: 200px;
+      border: 1px solid #888;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      background: #fff;
+    }
+    .title-bar {
+      background: #3498db;
+      color: #fff;
+      padding: 8px;
+      cursor: move;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .title-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    .title-buttons button {
+      border: none;
+      color: #fff;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      border-radius: 50%;
+      font-weight: bold;
+      line-height: 18px;
+      padding: 0;
+    }
+    /* Diferenciação visual entre minimizar e fechar */
+    .title-buttons button.minimize {
+      background: #f1c40f;
+    }
+    .title-buttons button.close {
+      background: #e74c3c;
+    }
+    .window-content {
+      padding: 10px;
+      height: calc(100% - 40px);
+      overflow: auto;
+    }
+    /* Classe para ocultar conteúdo (minimizar) */
+    .hidden {
+      display: none;
+    }
+    /* Painel de controle para adicionar novas janelas */
+    #controlPanel {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #fff;
+      padding: 10px;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      border: 1px solid #888;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Painel de controle: permite adicionar novas janelas -->
+  <div id="controlPanel">
+    <button id="addWindow">Adicionar Janela</button>
+  </div>
+
+  <!-- Definição das 4 janelas iniciais -->
+  <div class="window" id="window1" style="top: 50px; left: 50px;">
+    <div class="title-bar">
+      <span>Janela 1</span>
+      <div class="title-buttons">
+        <button class="minimize">&#8211;</button>
+        <button class="close">&#10005;</button>
+      </div>
+    </div>
+    <div class="window-content">
+      Conteúdo da Janela 1
+    </div>
+  </div>
+
+  <div class="window" id="window2" style="top: 120px; left: 120px;">
+    <div class="title-bar">
+      <span>Janela 2</span>
+      <div class="title-buttons">
+        <button class="minimize">&#8211;</button>
+        <button class="close">&#10005;</button>
+      </div>
+    </div>
+    <div class="window-content">
+      Conteúdo da Janela 2
+    </div>
+  </div>
+
+  <div class="window" id="window3" style="top: 190px; left: 190px;">
+    <div class="title-bar">
+      <span>Janela 3</span>
+      <div class="title-buttons">
+        <button class="minimize">&#8211;</button>
+        <button class="close">&#10005;</button>
+      </div>
+    </div>
+    <div class="window-content">
+      Conteúdo da Janela 3
+    </div>
+  </div>
+
+  <div class="window" id="window4" style="top: 260px; left: 260px;">
+    <div class="title-bar">
+      <span>Janela 4</span>
+      <div class="title-buttons">
+        <button class="minimize">&#8211;</button>
+        <button class="close">&#10005;</button>
+      </div>
+    </div>
+    <div class="window-content">
+      Conteúdo da Janela 4
+    </div>
+  </div>
+
+  <script>
+    // Variáveis globais para o arraste
+    let currentDragged = null;
+    let offsetX = 0, offsetY = 0;
+    let highestZIndex = 1; // Variável para gerenciar o empilhamento das janelas
+
+    // Função para aplicar comportamento "centralizado" em uma janela
+    function applyWindowEvents(win) {
+      // Ao clicar em qualquer parte da janela, traz para o primeiro plano
+      win.addEventListener('mousedown', () => {
+        highestZIndex++;
+        win.style.zIndex = highestZIndex;
+      });
+
+      // Configura o arraste ao clicar na barra de título
+      const titleBar = win.querySelector('.title-bar');
+      titleBar.addEventListener('mousedown', (e) => {
+        // Ignora o clique se for em um botão
+        if (e.target.tagName.toLowerCase() === 'button') return;
+        currentDragged = win;
+        offsetX = e.clientX - win.offsetLeft;
+        offsetY = e.clientY - win.offsetTop;
+        highestZIndex++;
+        win.style.zIndex = highestZIndex;
+      });
+
+      // Botões de minimizar e fechar
+      const btnMinimize = win.querySelector('button.minimize');
+      const btnClose = win.querySelector('button.close');
+      const content = win.querySelector('.window-content');
+
+      btnMinimize.addEventListener('click', () => {
+        // Alterna a exibição do conteúdo
+        content.classList.toggle('hidden');
+      });
+
+      btnClose.addEventListener('click', () => {
+        win.parentElement.removeChild(win);
+      });
+    }
+
+    // Aplica os eventos às janelas já criadas
+    document.querySelectorAll('.window').forEach(win => {
+      applyWindowEvents(win);
+    });
+
+    // Eventos globais de arraste
+    document.addEventListener('mousemove', (e) => {
+      if (currentDragged) {
+        let newX = e.clientX - offsetX;
+        let newY = e.clientY - offsetY;
+        currentDragged.style.left = newX + 'px';
+        currentDragged.style.top = newY + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      currentDragged = null;
+    });
+
+    // Variável para contar janelas para nomeação e posicionamento
+    let windowCount = 4;
+
+    // Função para adicionar uma nova janela
+    document.getElementById('addWindow').addEventListener('click', () => {
+      windowCount++;
+      const newWin = document.createElement('div');
+      newWin.className = 'window';
+      newWin.style.top = (50 + 30 * windowCount) + 'px';
+      newWin.style.left = (50 + 30 * windowCount) + 'px';
+      newWin.id = 'window' + windowCount;
+      newWin.innerHTML = `
+        <div class="title-bar">
+          <span>Janela ${windowCount}</span>
+          <div class="title-buttons">
+            <button class="minimize">&#8211;</button>
+            <button class="close">&#10005;</button>
+          </div>
+        </div>
+        <div class="window-content">
+          Conteúdo da Janela ${windowCount}
+        </div>
+      `;
+      document.body.appendChild(newWin);
+      applyWindowEvents(newWin);
+    });
+  </script>
+</body>
+</html>

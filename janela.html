@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Simulação de Janelas com Funcionalidades Estendidas</title>
+  <title>Simulação de Janelas com Redimensionamento</title>
   <style>
     /* Estilização básica */
     body {
@@ -68,18 +68,17 @@
       height: calc(100% - 40px);
       overflow: auto;
     }
-    /* Painel de controle para adicionar novas janelas */
-    #controlPanel {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: #fff;
-      padding: 10px;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-      border: 1px solid #888;
-      z-index: 1000;
+    .resize-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #3498db;
+      bottom: 0;
+      right: 0;
+      cursor: nwse-resize;
+      border-radius: 50%;
     }
-    /* Taskbar para janelas minimizadas */
+    /* Taskbar */
     #taskbar {
       position: fixed;
       bottom: 0;
@@ -92,6 +91,19 @@
       padding: 0 10px;
       gap: 10px;
       z-index: 1000;
+    }
+    #taskbar #addWindow {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s ease;
+    }
+    #taskbar #addWindow:hover {
+      background: #2980b9;
     }
     #taskbar .taskbar-item {
       background: #555;
@@ -109,15 +121,12 @@
 </head>
 <body>
 
-  <!-- Painel de controle: permite adicionar novas janelas -->
-  <div id="controlPanel">
+  <!-- Taskbar com botão de adicionar janela no início -->
+  <div id="taskbar">
     <button id="addWindow">Adicionar Janela</button>
   </div>
 
-  <!-- Taskbar para janelas minimizadas -->
-  <div id="taskbar"></div>
-
-  <!-- Definição das 4 janelas iniciais -->
+  <!-- Janela inicial -->
   <div class="window" id="window1" style="top: 50px; left: 50px;">
     <div class="title-bar">
       <span>Janela 1</span>
@@ -129,71 +138,34 @@
     <div class="window-content">
       Conteúdo da Janela 1
     </div>
-  </div>
-
-  <div class="window" id="window2" style="top: 120px; left: 120px;">
-    <div class="title-bar">
-      <span>Janela 2</span>
-      <div class="title-buttons">
-        <button class="minimize">&#8211;</button>
-        <button class="close">&#10005;</button>
-      </div>
-    </div>
-    <div class="window-content">
-      Conteúdo da Janela 2
-    </div>
-  </div>
-
-  <div class="window" id="window3" style="top: 190px; left: 190px;">
-    <div class="title-bar">
-      <span>Janela 3</span>
-      <div class="title-buttons">
-        <button class="minimize">&#8211;</button>
-        <button class="close">&#10005;</button>
-      </div>
-    </div>
-    <div class="window-content">
-      Conteúdo da Janela 3
-    </div>
-  </div>
-
-  <div class="window" id="window4" style="top: 260px; left: 260px;">
-    <div class="title-bar">
-      <span>Janela 4</span>
-      <div class="title-buttons">
-        <button class="minimize">&#8211;</button>
-        <button class="close">&#10005;</button>
-      </div>
-    </div>
-    <div class="window-content">
-      Conteúdo da Janela 4
-    </div>
+    <div class="resize-handle"></div>
   </div>
 
   <script>
-    // Variáveis globais para arraste e empilhamento
+    // Variáveis globais para arraste, redimensionamento e empilhamento
     let currentDragged = null;
+    let currentResized = null;
     let offsetX = 0, offsetY = 0;
     let highestZIndex = 1;
     const taskbar = document.getElementById('taskbar');
+    const addWindowBtn = document.getElementById('addWindow');
 
-    // Função auxiliar para limitar valores
+    // Função para limitar valores
     function clamp(value, min, max) {
       return Math.min(Math.max(value, min), max);
     }
 
-    // Traz a janela para o topo
+    // Traz a janela para o topo aumentando seu z-index
     function bringToFront(win) {
       highestZIndex++;
       win.style.zIndex = highestZIndex;
     }
 
-    // Minimiza a janela com animação e adiciona item à taskbar
+    // Minimiza a janela e adiciona um botão correspondente na taskbar,
+    // que é sempre inserido logo após o botão "Adicionar Janela"
     function minimizeWindow(win) {
-      if (win._minimized) return; // Já minimizada
-      
+      if (win._minimized) return;
       win._minimized = true;
-      // Cria o botão na taskbar
       const winTitle = win.querySelector('.title-bar span').innerText;
       const taskbarButton = document.createElement('button');
       taskbarButton.innerText = winTitle;
@@ -202,20 +174,18 @@
       taskbarButton.addEventListener('click', () => {
         restoreWindow(win, taskbarButton);
       });
-      taskbar.appendChild(taskbarButton);
-
-      // Anima a opacidade e depois esconde a janela
+      // Insere o botão logo após o botão "Adicionar Janela"
+      taskbar.insertBefore(taskbarButton, addWindowBtn.nextSibling);
       win.style.opacity = '0';
       setTimeout(() => {
         win.style.display = 'none';
       }, 300);
     }
 
-    // Restaura a janela minimizada e remove seu item na taskbar
+    // Restaura a janela minimizada e remove seu item da taskbar
     function restoreWindow(win, taskbarButton) {
       win.style.display = 'block';
-      // Força o reflow para captar a mudança e depois aplica a opacidade
-      void win.offsetWidth;
+      void win.offsetWidth; // força o reflow para capturar a mudança
       win.style.opacity = '1';
       if (taskbarButton && taskbarButton.parentNode) {
         taskbarButton.parentNode.removeChild(taskbarButton);
@@ -224,32 +194,16 @@
       bringToFront(win);
     }
 
-    // Fecha a janela e remove item da taskbar, se existir
+    // Fecha a janela
     function closeWindow(win) {
-      if (win._minimized) {
-        const btn = taskbar.querySelector(`[data-window-id="${win.id}"]`);
-        if (btn) {
-          btn.parentNode.removeChild(btn);
-        }
-      }
-      if (win.parentNode) {
-        win.parentNode.removeChild(win);
-      }
+      if (win.parentNode) win.parentNode.removeChild(win);
     }
 
-    // Aplica os eventos de arraste, clique e botões à janela
+    // Aplica eventos de arraste, clique e redimensionamento à janela
     function applyWindowEvents(win) {
-      // Ao clicar na janela, traz para o topo
-      win.addEventListener('mousedown', () => {
-        if (win.style.display !== 'none') {
-          bringToFront(win);
-        }
-      });
-
       // Arraste pela barra de título
       const titleBar = win.querySelector('.title-bar');
       titleBar.addEventListener('mousedown', (e) => {
-        // Evita conflito com os botões
         if (e.target.tagName.toLowerCase() === 'button') return;
         currentDragged = win;
         offsetX = e.clientX - win.offsetLeft;
@@ -257,48 +211,61 @@
         bringToFront(win);
       });
 
-      // Comportamento dos botões minimizar e fechar
+      // Botões de minimizar e fechar
       const btnMinimize = win.querySelector('button.minimize');
       const btnClose = win.querySelector('button.close');
-
       btnMinimize.addEventListener('click', (e) => {
         e.stopPropagation();
         minimizeWindow(win);
       });
-
       btnClose.addEventListener('click', (e) => {
         e.stopPropagation();
         closeWindow(win);
       });
+
+      // Redimensionamento da janela
+      const resizeHandle = win.querySelector('.resize-handle');
+      resizeHandle.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        currentResized = win;
+        offsetX = e.clientX;
+        offsetY = e.clientY;
+        bringToFront(win);
+      });
     }
 
-    // Aplica eventos às janelas já criadas e inicializa seus z-index
+    // Eventos globais para arrastar e redimensionar
+    document.addEventListener('mousemove', (e) => {
+      if (currentDragged) {
+        const newX = clamp(e.clientX - offsetX, 0, window.innerWidth - currentDragged.offsetWidth);
+        const newY = clamp(e.clientY - offsetY, 0, window.innerHeight - currentDragged.offsetHeight);
+        currentDragged.style.left = newX + 'px';
+        currentDragged.style.top = newY + 'px';
+      } else if (currentResized) {
+        const newWidth = clamp(currentResized.offsetWidth + (e.clientX - offsetX), 150, window.innerWidth - currentResized.offsetLeft);
+        const newHeight = clamp(currentResized.offsetHeight + (e.clientY - offsetY), 150, window.innerHeight - currentResized.offsetTop);
+        currentResized.style.width = newWidth + 'px';
+        currentResized.style.height = newHeight + 'px';
+        offsetX = e.clientX;
+        offsetY = e.clientY;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      currentDragged = null;
+      currentResized = null;
+    });
+
+    // Inicializa os eventos para janelas já presentes
     document.querySelectorAll('.window').forEach(win => {
       applyWindowEvents(win);
       highestZIndex++;
       win.style.zIndex = highestZIndex;
     });
 
-    // Eventos globais para movimentação (arraste)
-    document.addEventListener('mousemove', (e) => {
-      if (currentDragged) {
-        const taskbarHeight = taskbar.offsetHeight;
-        let newX = e.clientX - offsetX;
-        let newY = e.clientY - offsetY;
-        newX = clamp(newX, 0, window.innerWidth - currentDragged.offsetWidth);
-        newY = clamp(newY, 0, window.innerHeight - currentDragged.offsetHeight - taskbarHeight);
-        currentDragged.style.left = newX + 'px';
-        currentDragged.style.top = newY + 'px';
-      }
-    });
-
-    document.addEventListener('mouseup', () => {
-      currentDragged = null;
-    });
-
     // Função para adicionar uma nova janela dinamicamente
-    let windowCount = 4;
-    document.getElementById('addWindow').addEventListener('click', () => {
+    let windowCount = 1;
+    addWindowBtn.addEventListener('click', () => {
       windowCount++;
       const newWin = document.createElement('div');
       newWin.className = 'window';
@@ -316,6 +283,7 @@
         <div class="window-content">
           Conteúdo da Janela ${windowCount}
         </div>
+        <div class="resize-handle"></div>
       `;
       document.body.appendChild(newWin);
       applyWindowEvents(newWin);

@@ -51,12 +51,13 @@
 
       // Manipulador de mensagem recebida via BroadcastChannel
       canal.onmessage = event => {
-        adicionarLog('Recebido: ' + event.data);
+         if (event.data != "#CLEAR#") adicionarLog('Recebido: ' + event.data);
+         else document.getElementById('log').innerHTML = '';
       };
 
       // Envia mensagem para o canal quando o botão for clicado
       document.getElementById('sendMessage').addEventListener('click', () => {
-        const mensagem = 'Olá do Broadcast Channel, agora são ' + new Date().toLocaleTimeString();
+        const mensagem = prompt("Qual é sua mensagem?");
         canal.postMessage(mensagem);
         adicionarLog('Enviado: ' + mensagem);
       });
@@ -64,6 +65,7 @@
       // Limpa o log de mensagens
       document.getElementById('clearLog').addEventListener('click', () => {
         document.getElementById('log').innerHTML = '';
+        canal.postMessage("#CLEAR#");
       });
     } else {
       alert('Seu navegador não suporta a Broadcast Channel API.');

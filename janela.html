@@ -128,18 +128,13 @@
     #addMenu .menu-item:hover {
       background: #f0f0f0;
     }
-    /* Calculadora */
-    .calc-container input[type="text"] {
-      width: 100%;
-      margin-bottom: 5px;
-      font-size: 16px;
-      padding: 5px;
+    /* Pet Virtual */
+    .pet-container p {
+      margin: 5px 0;
     }
-    .calc-buttons button {
-      width: 23%;
-      margin: 1%;
-      padding: 10px;
-      font-size: 16px;
+    .pet-container button {
+      margin-right: 5px;
+      padding: 5px 10px;
       cursor: pointer;
     }
     /* Pedra Papel Tesoura */
@@ -168,7 +163,7 @@
 </head>
 <body>
 
-  <!-- Taskbar com botão de adicionar e exibição de data/hora -->
+  <!-- Taskbar com botão de adicionar e data/hora -->
   <div id="taskbar">
     <button id="addWindow">Adicionar Janela</button>
     <div id="dateTime"></div>
@@ -176,7 +171,7 @@
   <!-- Menu de seleção de tipo de janela -->
   <div id="addMenu">
     <div class="menu-item" data-type="connected">Janela Conectada</div>
-    <div class="menu-item" data-type="calculator">Calculadora</div>
+    <div class="menu-item" data-type="pet">Pet Virtual</div>
     <div class="menu-item" data-type="rps">Pedra Papel Tesoura</div>
   </div>
 
@@ -202,7 +197,7 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
-    // Função de arraste dos _windows_
+    // Função de arraste dos windows
     document.addEventListener('mousemove', (e) => {
       if (currentDragged) {
         let newX = e.clientX - dragOffsetX;
@@ -223,7 +218,7 @@
       win.style.zIndex = highestZIndex;
     }
 
-    // Minimiza a janela (cria um botão na taskbar para restauração)
+    // Minimiza a janela (cria botão na taskbar para restauração)
     function minimizeWindow(win) {
       if (win._minimized) return;
       win._minimized = true;
@@ -254,7 +249,7 @@
       bringToFront(win);
     }
 
-    // Fecha a janela e remove-a do array de janelas conectadas (se aplicável)
+    // Fecha a janela (remove do array se for conectada)
     function closeWindow(win) {
       const index = connectedWindows.findIndex(conn => conn.id === win.id);
       if (index !== -1) {
@@ -263,7 +258,7 @@
       if (win.parentNode) win.parentNode.removeChild(win);
     }
 
-    // Aplica os eventos básicos à janela (arraste, minimizar, fechar)
+    // Aplica eventos básicos à janela (arraste, minimizar, fechar)
     function applyWindowEvents(win) {
       const titleBar = win.querySelector('.title-bar');
       titleBar.addEventListener('mousedown', (e) => {
@@ -273,7 +268,6 @@
         dragOffsetY = e.clientY - win.offsetTop;
         bringToFront(win);
       });
-      
       const btnMinimize = win.querySelector('button.minimize');
       const btnClose = win.querySelector('button.close');
       btnMinimize.addEventListener('click', (e) => {
@@ -286,7 +280,7 @@
       });
     }
 
-    // Função para enviar mensagem aleatória entre as janelas conectadas
+    // Função para enviar mensagem entre as janelas conectadas
     function broadcastMessage(senderId, message) {
       connectedWindows.forEach(conn => {
         const chatArea = conn.chatArea;
@@ -323,12 +317,9 @@
       document.body.appendChild(win);
       applyWindowEvents(win);
       bringToFront(win);
-      
       // Registra a janela para comunicação
       const chatArea = win.querySelector('.chat-area');
       connectedWindows.push({ id: win.id, chatArea: chatArea });
-      
-      // Lógica para enviar mensagem aleatória
       const sendBtn = win.querySelector('.send-btn');
       sendBtn.addEventListener('click', () => {
         const randomData = Math.floor(Math.random() * 1000);
@@ -336,8 +327,8 @@
       });
     }
 
-    // 2. Calculadora
-    function createCalculatorWindow() {
+    // 2. Pet Virtual (substituindo a Calculadora)
+    function createPetWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
@@ -346,63 +337,55 @@
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
-          <span>Calculadora ${windowCount}</span>
+          <span>Pet Virtual ${windowCount}</span>
           <div class="title-buttons">
             <button class="minimize">&#8211;</button>
             <button class="close">&#10005;</button>
           </div>
         </div>
         <div class="window-content">
-          <div class="calc-container">
-            <input type="text" readonly value="0">
-            <div class="calc-buttons">
-              <button>7</button>
-              <button>8</button>
-              <button>9</button>
-              <button>/</button>
-              <button>4</button>
-              <button>5</button>
-              <button>6</button>
-              <button>*</button>
-              <button>1</button>
-              <button>2</button>
-              <button>3</button>
-              <button>-</button>
-              <button>0</button>
-              <button>C</button>
-              <button>=</button>
-              <button>+</button>
-            </div>
+          <div class="pet-container">
+            <p>Fome: <span id="pet-hunger-${windowCount}">50</span></p>
+            <p>Felicidade: <span id="pet-happiness-${windowCount}">50</span></p>
+            <button id="feed-btn-${windowCount}">Alimentar</button>
+            <button id="play-btn-${windowCount}">Brincar</button>
           </div>
         </div>
       `;
       document.body.appendChild(win);
       applyWindowEvents(win);
       bringToFront(win);
-      
-      // Lógica da calculadora
-      const display = win.querySelector('input[type="text"]');
-      const buttons = win.querySelectorAll('.calc-buttons button');
-      buttons.forEach(button => {
-        button.addEventListener('click', () => {
-          const value = button.innerText;
-          if (value === 'C') {
-            display.value = '0';
-          } else if (value === '=') {
-            try {
-              display.value = eval(display.value);
-            } catch {
-              display.value = 'Erro';
-            }
-          } else {
-            if (display.value === '0' || display.value === 'Erro') {
-              display.value = value;
-            } else {
-              display.value += value;
-            }
-          }
-        });
+  
+      // Estado inicial do pet
+      let hunger = 50, happiness = 50;
+      const hungerSpan = document.getElementById(`pet-hunger-${windowCount}`);
+      const happinessSpan = document.getElementById(`pet-happiness-${windowCount}`);
+      const feedBtn = document.getElementById(`feed-btn-${windowCount}`);
+      const playBtn = document.getElementById(`play-btn-${windowCount}`);
+  
+      function updateStatus() {
+        hungerSpan.innerText = hunger;
+        happinessSpan.innerText = happiness;
+      }
+  
+      feedBtn.addEventListener('click', () => {
+        hunger = Math.max(0, hunger - 10);
+        happiness = Math.min(100, happiness + 5);
+        updateStatus();
       });
+  
+      playBtn.addEventListener('click', () => {
+        happiness = Math.min(100, happiness + 10);
+        hunger = Math.min(100, hunger + 5);
+        updateStatus();
+      });
+  
+      // Atualização periódica (a cada 5 segundos)
+      setInterval(() => {
+        hunger = Math.min(100, hunger + 1);
+        happiness = Math.max(0, happiness - 1);
+        updateStatus();
+      }, 5000);
     }
 
     // 3. Pedra Papel Tesoura
@@ -434,8 +417,7 @@
       document.body.appendChild(win);
       applyWindowEvents(win);
       bringToFront(win);
-      
-      // Lógica de Pedra Papel Tesoura
+  
       const buttons = win.querySelectorAll('.rps-btn');
       const resultDiv = win.querySelector('.rps-result');
       buttons.forEach(button => {
@@ -466,11 +448,12 @@
       if (addMenu.style.display === 'block') {
         addMenu.style.display = 'none';
       } else {
-        // Posiciona o menu logo abaixo do botão
-        const rect = addWindowBtn.getBoundingClientRect();
-        addMenu.style.top = rect.bottom + 'px';
-        addMenu.style.left = rect.left + 'px';
+        // Exibe o menu e posiciona-o acima do botão "Adicionar Janela"
         addMenu.style.display = 'block';
+        const rect = addWindowBtn.getBoundingClientRect();
+        const menuHeight = addMenu.offsetHeight;
+        addMenu.style.top = (rect.top - menuHeight) + 'px';
+        addMenu.style.left = rect.left + 'px';
       }
     });
     addMenu.addEventListener('click', (e) => e.stopPropagation());
@@ -483,8 +466,8 @@
         const type = item.dataset.type;
         if (type === 'connected') {
           createConnectedWindow();
-        } else if (type === 'calculator') {
-          createCalculatorWindow();
+        } else if (type === 'pet') {
+          createPetWindow();
         } else if (type === 'rps') {
           createRPSWindow();
         }

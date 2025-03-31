@@ -48,7 +48,11 @@
             const particle = document.createElement('div');
             particle.classList.add('particle');
             if(erro)particle.classList.add('error');
-            particle.textContent = Math.min(Math.floor(Math.random() * 10), 1);
+            var batt = 0;
+            navigator.getBattery().then((a) => {
+              batt = a.level * 100;
+            });
+            particle.textContent = Math.max(batt.toFixed(0), 1);
             document.body.appendChild(particle);
             cor.r = Math.random() * 255;
             cor.g = Math.random() * 255;

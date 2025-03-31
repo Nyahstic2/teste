@@ -2,14 +2,16 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Simulação de Janelas</title>
+  <title>Simulação de Janelas com Funcionalidades Estendidas</title>
   <style>
-    /* Estilização básica da página e das janelas */
+    /* Estilização básica */
     body {
       margin: 0;
       background: #f0f0f0;
       overflow: hidden;
       font-family: Arial, sans-serif;
+      position: relative;
+      height: 100vh;
     }
     .window {
       position: absolute;
@@ -18,9 +20,12 @@
       border: 1px solid #888;
       box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
       background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: opacity 0.3s ease;
     }
     .title-bar {
-      background: #3498db;
+      background: linear-gradient(90deg, #3498db, #2980b9);
       color: #fff;
       padding: 8px;
       cursor: move;
@@ -28,6 +33,7 @@
       justify-content: space-between;
       align-items: center;
       user-select: none;
+      font-weight: bold;
     }
     .title-buttons {
       display: flex;
@@ -43,22 +49,24 @@
       font-weight: bold;
       line-height: 18px;
       padding: 0;
+      transition: background 0.2s ease;
     }
-    /* Diferenciação visual entre minimizar e fechar */
     .title-buttons button.minimize {
       background: #f1c40f;
     }
+    .title-buttons button.minimize:hover {
+      background: #f39c12;
+    }
     .title-buttons button.close {
       background: #e74c3c;
+    }
+    .title-buttons button.close:hover {
+      background: #c0392b;
     }
     .window-content {
       padding: 10px;
       height: calc(100% - 40px);
       overflow: auto;
-    }
-    /* Classe para ocultar conteúdo (minimizar) */
-    .hidden {
-      display: none;
     }
     /* Painel de controle para adicionar novas janelas */
     #controlPanel {
@@ -71,6 +79,32 @@
       border: 1px solid #888;
       z-index: 1000;
     }
+    /* Taskbar para janelas minimizadas */
+    #taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: #333;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 10px;
+      z-index: 1000;
+    }
+    #taskbar .taskbar-item {
+      background: #555;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    #taskbar .taskbar-item:hover {
+      background: #777;
+    }
   </style>
 </head>
 <body>
@@ -79,6 +113,9 @@
   <div id="controlPanel">
     <button id="addWindow">Adicionar Janela</button>
   </div>
+
+  <!-- Taskbar para janelas minimizadas -->
+  <div id="taskbar"></div>
 
   <!-- Definição das 4 janelas iniciais -->
   <div class="window" id="window1" style="top: 50px; left: 50px;">
@@ -134,56 +171,122 @@
   </div>
 
   <script>
-    // Variáveis globais para o arraste
+    // Variáveis globais para arraste e empilhamento
     let currentDragged = null;
     let offsetX = 0, offsetY = 0;
-    let highestZIndex = 1; // Variável para gerenciar o empilhamento das janelas
+    let highestZIndex = 1;
+    const taskbar = document.getElementById('taskbar');
 
-    // Função para aplicar comportamento "centralizado" em uma janela
+    // Função auxiliar para limitar valores
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    // Traz a janela para o topo
+    function bringToFront(win) {
+      highestZIndex++;
+      win.style.zIndex = highestZIndex;
+    }
+
+    // Minimiza a janela com animação e adiciona item à taskbar
+    function minimizeWindow(win) {
+      if (win._minimized) return; // Já minimizada
+      
+      win._minimized = true;
+      // Cria o botão na taskbar
+      const winTitle = win.querySelector('.title-bar span').innerText;
+      const taskbarButton = document.createElement('button');
+      taskbarButton.innerText = winTitle;
+      taskbarButton.className = 'taskbar-item';
+      taskbarButton.dataset.windowId = win.id;
+      taskbarButton.addEventListener('click', () => {
+        restoreWindow(win, taskbarButton);
+      });
+      taskbar.appendChild(taskbarButton);
+
+      // Anima a opacidade e depois esconde a janela
+      win.style.opacity = '0';
+      setTimeout(() => {
+        win.style.display = 'none';
+      }, 300);
+    }
+
+    // Restaura a janela minimizada e remove seu item na taskbar
+    function restoreWindow(win, taskbarButton) {
+      win.style.display = 'block';
+      // Força o reflow para captar a mudança e depois aplica a opacidade
+      void win.offsetWidth;
+      win.style.opacity = '1';
+      if (taskbarButton && taskbarButton.parentNode) {
+        taskbarButton.parentNode.removeChild(taskbarButton);
+      }
+      win._minimized = false;
+      bringToFront(win);
+    }
+
+    // Fecha a janela e remove item da taskbar, se existir
+    function closeWindow(win) {
+      if (win._minimized) {
+        const btn = taskbar.querySelector(`[data-window-id="${win.id}"]`);
+        if (btn) {
+          btn.parentNode.removeChild(btn);
+        }
+      }
+      if (win.parentNode) {
+        win.parentNode.removeChild(win);
+      }
+    }
+
+    // Aplica os eventos de arraste, clique e botões à janela
     function applyWindowEvents(win) {
-      // Ao clicar em qualquer parte da janela, traz para o primeiro plano
+      // Ao clicar na janela, traz para o topo
       win.addEventListener('mousedown', () => {
-        highestZIndex++;
-        win.style.zIndex = highestZIndex;
+        if (win.style.display !== 'none') {
+          bringToFront(win);
+        }
       });
 
-      // Configura o arraste ao clicar na barra de título
+      // Arraste pela barra de título
       const titleBar = win.querySelector('.title-bar');
       titleBar.addEventListener('mousedown', (e) => {
-        // Ignora o clique se for em um botão
+        // Evita conflito com os botões
         if (e.target.tagName.toLowerCase() === 'button') return;
         currentDragged = win;
         offsetX = e.clientX - win.offsetLeft;
         offsetY = e.clientY - win.offsetTop;
-        highestZIndex++;
-        win.style.zIndex = highestZIndex;
+        bringToFront(win);
       });
 
-      // Botões de minimizar e fechar
+      // Comportamento dos botões minimizar e fechar
       const btnMinimize = win.querySelector('button.minimize');
       const btnClose = win.querySelector('button.close');
-      const content = win.querySelector('.window-content');
 
-      btnMinimize.addEventListener('click', () => {
-        // Alterna a exibição do conteúdo
-        content.classList.toggle('hidden');
+      btnMinimize.addEventListener('click', (e) => {
+        e.stopPropagation();
+        minimizeWindow(win);
       });
 
-      btnClose.addEventListener('click', () => {
-        win.parentElement.removeChild(win);
+      btnClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeWindow(win);
       });
     }
 
-    // Aplica os eventos às janelas já criadas
+    // Aplica eventos às janelas já criadas e inicializa seus z-index
     document.querySelectorAll('.window').forEach(win => {
       applyWindowEvents(win);
+      highestZIndex++;
+      win.style.zIndex = highestZIndex;
     });
 
-    // Eventos globais de arraste
+    // Eventos globais para movimentação (arraste)
     document.addEventListener('mousemove', (e) => {
       if (currentDragged) {
+        const taskbarHeight = taskbar.offsetHeight;
         let newX = e.clientX - offsetX;
         let newY = e.clientY - offsetY;
+        newX = clamp(newX, 0, window.innerWidth - currentDragged.offsetWidth);
+        newY = clamp(newY, 0, window.innerHeight - currentDragged.offsetHeight - taskbarHeight);
         currentDragged.style.left = newX + 'px';
         currentDragged.style.top = newY + 'px';
       }
@@ -193,10 +296,8 @@
       currentDragged = null;
     });
 
-    // Variável para contar janelas para nomeação e posicionamento
+    // Função para adicionar uma nova janela dinamicamente
     let windowCount = 4;
-
-    // Função para adicionar uma nova janela
     document.getElementById('addWindow').addEventListener('click', () => {
       windowCount++;
       const newWin = document.createElement('div');
@@ -218,6 +319,7 @@
       `;
       document.body.appendChild(newWin);
       applyWindowEvents(newWin);
+      bringToFront(newWin);
     });
   </script>
 </body>

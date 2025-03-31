@@ -144,3 +144,248 @@
       background: #2980b9;
     }
     #taskbar .taskbar-item {
+      background: #555;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    #taskbar .taskbar-item:hover {
+      background: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Taskbar com o botão de Adicionar Janela no início -->
+  <div id="taskbar">
+    <button id="addWindow">Adicionar Janela</button>
+  </div>
+
+  <!-- Exemplo de janela inicial com os oito handles de redimensionamento -->
+  <div class="window" id="window1" style="top: 50px; left: 50px;">
+    <div class="title-bar">
+      <span>Janela 1</span>
+      <div class="title-buttons">
+        <button class="minimize">&#8211;</button>
+        <button class="close">&#10005;</button>
+      </div>
+    </div>
+    <div class="window-content">
+      Conteúdo da Janela 1
+    </div>
+    <!-- Handles: top-left, top, top-right, right, bottom-right, bottom, bottom-left, left -->
+    <div class="resize-handle top-left"></div>
+    <div class="resize-handle top"></div>
+    <div class="resize-handle top-right"></div>
+    <div class="resize-handle right"></div>
+    <div class="resize-handle bottom-right"></div>
+    <div class="resize-handle bottom"></div>
+    <div class="resize-handle bottom-left"></div>
+    <div class="resize-handle left"></div>
+  </div>
+
+  <script>
+    // Variáveis Globais
+    let currentDragged = null;
+    let currentResizing = null;
+    let dragOffsetX = 0, dragOffsetY = 0;
+    let highestZIndex = 1;
+    const taskbar = document.getElementById('taskbar');
+    const addWindowBtn = document.getElementById('addWindow');
+
+    // Função para limitar valores
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    // Traz a janela para o topo definindo o z-index
+    function bringToFront(win) {
+      highestZIndex++;
+      win.style.zIndex = highestZIndex;
+    }
+
+    // Minimiza a janela e adiciona um botão na taskbar (logo após "Adicionar Janela")
+    function minimizeWindow(win) {
+      if (win._minimized) return;
+      win._minimized = true;
+      const winTitle = win.querySelector('.title-bar span').innerText;
+      const taskbarButton = document.createElement('button');
+      taskbarButton.innerText = winTitle;
+      taskbarButton.className = 'taskbar-item';
+      taskbarButton.dataset.windowId = win.id;
+      taskbarButton.addEventListener('click', () => {
+        restoreWindow(win, taskbarButton);
+      });
+      // Insere após o botão de adicionar janela
+      taskbar.insertBefore(taskbarButton, addWindowBtn.nextSibling);
+      win.style.opacity = '0';
+      setTimeout(() => {
+        win.style.display = 'none';
+      }, 300);
+    }
+
+    // Restaura a janela minimizada e remove o item da taskbar
+    function restoreWindow(win, taskbarButton) {
+      win.style.display = 'block';
+      void win.offsetWidth;
+      win.style.opacity = '1';
+      if (taskbarButton && taskbarButton.parentNode) {
+        taskbarButton.parentNode.removeChild(taskbarButton);
+      }
+      win._minimized = false;
+      bringToFront(win);
+    }
+
+    // Fecha a janela
+    function closeWindow(win) {
+      if (win.parentNode) win.parentNode.removeChild(win);
+    }
+
+    // Aplica eventos para movimentar e redimensionar a janela
+    function applyWindowEvents(win) {
+      // Movimentação: arraste pela barra de título
+      const titleBar = win.querySelector('.title-bar');
+      titleBar.addEventListener('mousedown', (e) => {
+        if (e.target.tagName.toLowerCase() === 'button') return;
+        currentDragged = win;
+        dragOffsetX = e.clientX - win.offsetLeft;
+        dragOffsetY = e.clientY - win.offsetTop;
+        bringToFront(win);
+      });
+
+      // Botões de minimizar e fechar
+      const btnMinimize = win.querySelector('button.minimize');
+      const btnClose = win.querySelector('button.close');
+      btnMinimize.addEventListener('click', (e) => {
+        e.stopPropagation();
+        minimizeWindow(win);
+      });
+      btnClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeWindow(win);
+      });
+
+      // Redimensionamento:
+      // Para cada handle, registre o início do redimensionamento
+      const handles = win.querySelectorAll('.resize-handle');
+      handles.forEach(handle => {
+        handle.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          currentResizing = {
+            element: win,
+            startX: e.clientX,
+            startY: e.clientY,
+            startLeft: parseInt(win.style.left, 10),
+            startTop: parseInt(win.style.top, 10),
+            startWidth: win.offsetWidth,
+            startHeight: win.offsetHeight,
+            directions: {
+              top: handle.classList.contains('top'),
+              bottom: handle.classList.contains('bottom'),
+              left: handle.classList.contains('left'),
+              right: handle.classList.contains('right')
+            }
+          };
+          bringToFront(win);
+        });
+      });
+    }
+
+    // Eventos globais de movimento e redimensionamento
+    document.addEventListener('mousemove', (e) => {
+      // Movimentação da janela
+      if (currentDragged) {
+        const newX = clamp(e.clientX - dragOffsetX, 0, window.innerWidth - currentDragged.offsetWidth);
+        const newY = clamp(e.clientY - dragOffsetY, 0, window.innerHeight - currentDragged.offsetHeight);
+        currentDragged.style.left = newX + 'px';
+        currentDragged.style.top = newY + 'px';
+      }
+      // Redimensionamento da janela
+      if (currentResizing) {
+        const dx = e.clientX - currentResizing.startX;
+        const dy = e.clientY - currentResizing.startY;
+        let newLeft = currentResizing.startLeft;
+        let newTop = currentResizing.startTop;
+        let newWidth = currentResizing.startWidth;
+        let newHeight = currentResizing.startHeight;
+        
+        if (currentResizing.directions.left) {
+          newWidth = currentResizing.startWidth - dx;
+          newLeft = currentResizing.startLeft + dx;
+        }
+        if (currentResizing.directions.right) {
+          newWidth = currentResizing.startWidth + dx;
+        }
+        if (currentResizing.directions.top) {
+          newHeight = currentResizing.startHeight - dy;
+          newTop = currentResizing.startTop + dy;
+        }
+        if (currentResizing.directions.bottom) {
+          newHeight = currentResizing.startHeight + dy;
+        }
+    
+        // Define limites mínimos (150px) e impede que a janela ultrapasse a área visível
+        newWidth = clamp(newWidth, 150, window.innerWidth - newLeft);
+        newHeight = clamp(newHeight, 150, window.innerHeight - newTop);
+        newLeft = clamp(newLeft, 0, currentResizing.startLeft + currentResizing.startWidth - 150);
+        newTop = clamp(newTop, 0, currentResizing.startTop + currentResizing.startHeight - 150);
+    
+        currentResizing.element.style.left = newLeft + 'px';
+        currentResizing.element.style.top = newTop + 'px';
+        currentResizing.element.style.width = newWidth + 'px';
+        currentResizing.element.style.height = newHeight + 'px';
+      }
+    });
+    
+    document.addEventListener('mouseup', () => {
+      currentDragged = null;
+      currentResizing = null;
+    });
+    
+    // Inicializa eventos para janelas existentes
+    document.querySelectorAll('.window').forEach(win => {
+      applyWindowEvents(win);
+      highestZIndex++;
+      win.style.zIndex = highestZIndex;
+    });
+    
+    // Adiciona nova janela dinamicamente
+    let windowCount = 1;
+    addWindowBtn.addEventListener('click', () => {
+      windowCount++;
+      const newWin = document.createElement('div');
+      newWin.className = 'window';
+      newWin.style.top = (50 + 30 * windowCount) + 'px';
+      newWin.style.left = (50 + 30 * windowCount) + 'px';
+      newWin.id = 'window' + windowCount;
+      newWin.innerHTML = `
+        <div class="title-bar">
+          <span>Janela ${windowCount}</span>
+          <div class="title-buttons">
+            <button class="minimize">&#8211;</button>
+            <button class="close">&#10005;</button>
+          </div>
+        </div>
+        <div class="window-content">
+          Conteúdo da Janela ${windowCount}
+        </div>
+        <!-- Handles de redimensionamento para todos os lados -->
+        <div class="resize-handle top-left"></div>
+        <div class="resize-handle top"></div>
+        <div class="resize-handle top-right"></div>
+        <div class="resize-handle right"></div>
+        <div class="resize-handle bottom-right"></div>
+        <div class="resize-handle bottom"></div>
+        <div class="resize-handle bottom-left"></div>
+        <div class="resize-handle left"></div>
+      `;
+      document.body.appendChild(newWin);
+      applyWindowEvents(newWin);
+      bringToFront(newWin);
+    });
+  </script>
+</body>
+</html>

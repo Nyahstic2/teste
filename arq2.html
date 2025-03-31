@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página 2</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #e0f7fa;
+        text-align: center;
+      }
+      
+      h1 {
+        font-size: 3em;
+        margin-bottom: 20px;
+      }
+
+      a {
+        text-decoration: none;
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+      }
+      
+      [view-transition-name] {
+        transition: all 0.5s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- O mesmo view-transition-name faz a relação entre os elementos nas páginas -->
+    <h1 view-transition-name="title">Página 2</h1>
+    <p>Você está na Página 2.</p>
+    <a href="arq1.html" id="link">Voltar para Página 1</a>
+
+    <script>
+      const link = document.getElementById("link");
+      if (document.startViewTransition) {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          document.startViewTransition(() => {
+            window.location.href = link.href;
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

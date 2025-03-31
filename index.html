@@ -70,6 +70,9 @@
               pos: {
                 x: x,
                 y: y,
+              },
+              rotation: {
+                speed: rotSpeed
               }
             });
             let num = setInterval(() => {
@@ -82,7 +85,7 @@
                 particle.style.left = `${x}px`;
                 particle.style.top = `${y}px`;
                 particle.style.color = `rgb(${cor.r}, ${cor.g}, ${cor.b})`;
-                particle..style.rotate = `${rot}deg`;
+                particle.style.rotate = `${rot}deg`;
             }, 1);
             setTimeout(() => {
                 particle.remove();

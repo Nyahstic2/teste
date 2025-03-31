@@ -26,12 +26,10 @@
             0% {
                 font-size: 24px;
                 opacity: 1;
-                rotate: 0deg;
             }
             100% {
                 font-size: 0px;
                 opacity: 0;
-                rotate: 360deg;
             }
         }
     </style>
@@ -57,10 +55,12 @@
             cor.b = Math.random() * 255;
             let x = Math.random() * window.innerWidth - 30;
             let y = Math.random() * window.innerHeight - 30;
+            let rot = 0;
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
             const xSpeed = Math.random() * Math.floor(Math.random() * 4);
             const ySpeed = (Math.random() * Math.floor(Math.random() * 2)) + 1;
+            const rotSpeed = Math.random() * Math.floor(Math.random() * 4);
             console.table({
               name: "particula criada",
               vel: {
@@ -75,12 +75,14 @@
             let num = setInterval(() => {
                 x-= xSpeed;
                 y-= ySpeed;
+                rot += rotSpeed;
                 cor.r -= cor.r == 0 ? 0 : 0.5;
                 cor.g -= cor.g == 0 ? 0 : 0.5;
                 cor.b -= cor.b == 0 ? 0 : 0.5;
                 particle.style.left = `${x}px`;
                 particle.style.top = `${y}px`;
                 particle.style.color = `rgb(${cor.r}, ${cor.g}, ${cor.b})`;
+                particle..style.rotate = `${rot}deg`;
             }, 1);
             setTimeout(() => {
                 particle.remove();

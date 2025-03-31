@@ -2,15 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Simulação de Janelas com Redimensionamento Avançado</title>
+  <title>Simulação de Janelas Multi-Funcionais</title>
   <style>
-    /* Estilização Básica da Página */
+    /* Estilização Global */
     body {
       margin: 0;
+      font-family: Arial, sans-serif;
       background: #f0f0f0;
       overflow: hidden;
-      font-family: Arial, sans-serif;
-      position: relative;
       height: 100vh;
     }
     .window {
@@ -18,8 +17,8 @@
       width: 300px;
       height: 200px;
       border: 1px solid #888;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
       background: #fff;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
       border-radius: 8px;
       overflow: hidden;
       transition: opacity 0.3s ease;
@@ -68,55 +67,7 @@
       height: calc(100% - 40px);
       overflow: auto;
     }
-    /* Estilização dos "Handles" de Redimensionamento */
-    .resize-handle {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: #3498db;
-      z-index: 100;
-    }
-    .resize-handle.top-left {
-      top: -5px;
-      left: -5px;
-      cursor: nwse-resize;
-    }
-    .resize-handle.top {
-      top: -5px;
-      left: calc(50% - 5px);
-      cursor: ns-resize;
-    }
-    .resize-handle.top-right {
-      top: -5px;
-      right: -5px;
-      cursor: nesw-resize;
-    }
-    .resize-handle.right {
-      top: calc(50% - 5px);
-      right: -5px;
-      cursor: ew-resize;
-    }
-    .resize-handle.bottom-right {
-      bottom: -5px;
-      right: -5px;
-      cursor: nwse-resize;
-    }
-    .resize-handle.bottom {
-      bottom: -5px;
-      left: calc(50% - 5px);
-      cursor: ns-resize;
-    }
-    .resize-handle.bottom-left {
-      bottom: -5px;
-      left: -5px;
-      cursor: nesw-resize;
-    }
-    .resize-handle.left {
-      top: calc(50% - 5px);
-      left: -5px;
-      cursor: ew-resize;
-    }
-    /* Taskbar – o botão "Adicionar Janela" fica no início */
+    /* Taskbar */
     #taskbar {
       position: fixed;
       bottom: 0;
@@ -127,10 +78,9 @@
       display: flex;
       align-items: center;
       padding: 0 10px;
-      gap: 10px;
       z-index: 1000;
     }
-    #taskbar #addWindow {
+    #addWindow {
       background: #3498db;
       color: #fff;
       border: none;
@@ -140,10 +90,15 @@
       font-weight: bold;
       transition: background 0.2s ease;
     }
-    #taskbar #addWindow:hover {
+    #addWindow:hover {
       background: #2980b9;
     }
-    #taskbar .taskbar-item {
+    #dateTime {
+      margin-left: auto;
+      color: #fff;
+      font-size: 14px;
+    }
+    .taskbar-item {
       background: #555;
       color: #fff;
       border: none;
@@ -151,63 +106,124 @@
       border-radius: 4px;
       cursor: pointer;
       transition: background 0.2s ease;
+      margin-left: 10px;
     }
-    #taskbar .taskbar-item:hover {
+    .taskbar-item:hover {
       background: #777;
+    }
+    /* Menu de Adição */
+    #addMenu {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 5px;
+      display: none;
+      z-index: 1100;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+    #addMenu .menu-item {
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+    #addMenu .menu-item:hover {
+      background: #f0f0f0;
+    }
+    /* Calculadora */
+    .calc-container input[type="text"] {
+      width: 100%;
+      margin-bottom: 5px;
+      font-size: 16px;
+      padding: 5px;
+    }
+    .calc-buttons button {
+      width: 23%;
+      margin: 1%;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    /* Pedra Papel Tesoura */
+    .rps-container {
+      text-align: center;
+    }
+    .rps-container button {
+      margin: 5px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .rps-result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    /* Janela Conectada */
+    .chat-area {
+      height: 120px;
+      overflow: auto;
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      padding: 5px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Taskbar com o botão de Adicionar Janela no início -->
+  <!-- Taskbar com botão de adicionar e exibição de data/hora -->
   <div id="taskbar">
     <button id="addWindow">Adicionar Janela</button>
+    <div id="dateTime"></div>
   </div>
-
-  <!-- Exemplo de janela inicial com os oito handles de redimensionamento -->
-  <div class="window" id="window1" style="top: 50px; left: 50px;">
-    <div class="title-bar">
-      <span>Janela 1</span>
-      <div class="title-buttons">
-        <button class="minimize">&#8211;</button>
-        <button class="close">&#10005;</button>
-      </div>
-    </div>
-    <div class="window-content">
-      Conteúdo da Janela 1
-    </div>
-    <!-- Handles: top-left, top, top-right, right, bottom-right, bottom, bottom-left, left -->
-    <div class="resize-handle top-left"></div>
-    <div class="resize-handle top"></div>
-    <div class="resize-handle top-right"></div>
-    <div class="resize-handle right"></div>
-    <div class="resize-handle bottom-right"></div>
-    <div class="resize-handle bottom"></div>
-    <div class="resize-handle bottom-left"></div>
-    <div class="resize-handle left"></div>
+  <!-- Menu de seleção de tipo de janela -->
+  <div id="addMenu">
+    <div class="menu-item" data-type="connected">Janela Conectada</div>
+    <div class="menu-item" data-type="calculator">Calculadora</div>
+    <div class="menu-item" data-type="rps">Pedra Papel Tesoura</div>
   </div>
 
   <script>
-    // Variáveis Globais
+    // Variáveis globais
     let currentDragged = null;
-    let currentResizing = null;
     let dragOffsetX = 0, dragOffsetY = 0;
     let highestZIndex = 1;
+    let windowCount = 0;
     const taskbar = document.getElementById('taskbar');
     const addWindowBtn = document.getElementById('addWindow');
+    const addMenu = document.getElementById('addMenu');
+    const dateTimeDiv = document.getElementById('dateTime');
 
-    // Função para limitar valores
-    function clamp(value, min, max) {
-      return Math.min(Math.max(value, min), max);
+    // Array global para janelas conectadas
+    const connectedWindows = [];
+
+    // Atualiza data e hora na taskbar a cada segundo
+    function updateDateTime() {
+      const now = new Date();
+      dateTimeDiv.innerText = now.toLocaleString();
     }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
 
-    // Traz a janela para o topo definindo o z-index
+    // Função de arraste dos _windows_
+    document.addEventListener('mousemove', (e) => {
+      if (currentDragged) {
+        let newX = e.clientX - dragOffsetX;
+        let newY = e.clientY - dragOffsetY;
+        newX = Math.max(0, Math.min(newX, window.innerWidth - currentDragged.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - currentDragged.offsetHeight - 40)); // 40px para a taskbar
+        currentDragged.style.left = newX + 'px';
+        currentDragged.style.top = newY + 'px';
+      }
+    });
+    document.addEventListener('mouseup', () => {
+      currentDragged = null;
+    });
+
+    // Traz a janela para o topo
     function bringToFront(win) {
       highestZIndex++;
       win.style.zIndex = highestZIndex;
     }
 
-    // Minimiza a janela e adiciona um botão na taskbar (logo após "Adicionar Janela")
+    // Minimiza a janela (cria um botão na taskbar para restauração)
     function minimizeWindow(win) {
       if (win._minimized) return;
       win._minimized = true;
@@ -219,7 +235,6 @@
       taskbarButton.addEventListener('click', () => {
         restoreWindow(win, taskbarButton);
       });
-      // Insere após o botão de adicionar janela
       taskbar.insertBefore(taskbarButton, addWindowBtn.nextSibling);
       win.style.opacity = '0';
       setTimeout(() => {
@@ -227,7 +242,7 @@
       }, 300);
     }
 
-    // Restaura a janela minimizada e remove o item da taskbar
+    // Restaura a janela minimizada
     function restoreWindow(win, taskbarButton) {
       win.style.display = 'block';
       void win.offsetWidth;
@@ -239,14 +254,17 @@
       bringToFront(win);
     }
 
-    // Fecha a janela
+    // Fecha a janela e remove-a do array de janelas conectadas (se aplicável)
     function closeWindow(win) {
+      const index = connectedWindows.findIndex(conn => conn.id === win.id);
+      if (index !== -1) {
+        connectedWindows.splice(index, 1);
+      }
       if (win.parentNode) win.parentNode.removeChild(win);
     }
 
-    // Aplica eventos para movimentar e redimensionar a janela
+    // Aplica os eventos básicos à janela (arraste, minimizar, fechar)
     function applyWindowEvents(win) {
-      // Movimentação: arraste pela barra de título
       const titleBar = win.querySelector('.title-bar');
       titleBar.addEventListener('mousedown', (e) => {
         if (e.target.tagName.toLowerCase() === 'button') return;
@@ -255,8 +273,7 @@
         dragOffsetY = e.clientY - win.offsetTop;
         bringToFront(win);
       });
-
-      // Botões de minimizar e fechar
+      
       const btnMinimize = win.querySelector('button.minimize');
       const btnClose = win.querySelector('button.close');
       btnMinimize.addEventListener('click', (e) => {
@@ -267,124 +284,212 @@
         e.stopPropagation();
         closeWindow(win);
       });
+    }
 
-      // Redimensionamento:
-      // Para cada handle, registre o início do redimensionamento
-      const handles = win.querySelectorAll('.resize-handle');
-      handles.forEach(handle => {
-        handle.addEventListener('mousedown', (e) => {
-          e.stopPropagation();
-          currentResizing = {
-            element: win,
-            startX: e.clientX,
-            startY: e.clientY,
-            startLeft: parseInt(win.style.left, 10),
-            startTop: parseInt(win.style.top, 10),
-            startWidth: win.offsetWidth,
-            startHeight: win.offsetHeight,
-            directions: {
-              top: handle.classList.contains('top'),
-              bottom: handle.classList.contains('bottom'),
-              left: handle.classList.contains('left'),
-              right: handle.classList.contains('right')
-            }
-          };
-          bringToFront(win);
-        });
+    // Função para enviar mensagem aleatória entre as janelas conectadas
+    function broadcastMessage(senderId, message) {
+      connectedWindows.forEach(conn => {
+        const chatArea = conn.chatArea;
+        const msgElement = document.createElement('p');
+        msgElement.innerText = `Janela ${senderId}: ${message}`;
+        chatArea.appendChild(msgElement);
+        chatArea.scrollTop = chatArea.scrollHeight;
       });
     }
 
-    // Eventos globais de movimento e redimensionamento
-    document.addEventListener('mousemove', (e) => {
-      // Movimentação da janela
-      if (currentDragged) {
-        const newX = clamp(e.clientX - dragOffsetX, 0, window.innerWidth - currentDragged.offsetWidth);
-        const newY = clamp(e.clientY - dragOffsetY, 0, window.innerHeight - currentDragged.offsetHeight);
-        currentDragged.style.left = newX + 'px';
-        currentDragged.style.top = newY + 'px';
-      }
-      // Redimensionamento da janela
-      if (currentResizing) {
-        const dx = e.clientX - currentResizing.startX;
-        const dy = e.clientY - currentResizing.startY;
-        let newLeft = currentResizing.startLeft;
-        let newTop = currentResizing.startTop;
-        let newWidth = currentResizing.startWidth;
-        let newHeight = currentResizing.startHeight;
-        
-        if (currentResizing.directions.left) {
-          newWidth = currentResizing.startWidth - dx;
-          newLeft = currentResizing.startLeft + dx;
-        }
-        if (currentResizing.directions.right) {
-          newWidth = currentResizing.startWidth + dx;
-        }
-        if (currentResizing.directions.top) {
-          newHeight = currentResizing.startHeight - dy;
-          newTop = currentResizing.startTop + dy;
-        }
-        if (currentResizing.directions.bottom) {
-          newHeight = currentResizing.startHeight + dy;
-        }
-    
-        // Define limites mínimos (150px) e impede que a janela ultrapasse a área visível
-        newWidth = clamp(newWidth, 150, window.innerWidth - newLeft);
-        newHeight = clamp(newHeight, 150, window.innerHeight - newTop);
-        newLeft = clamp(newLeft, 0, currentResizing.startLeft + currentResizing.startWidth - 150);
-        newTop = clamp(newTop, 0, currentResizing.startTop + currentResizing.startHeight - 150);
-    
-        currentResizing.element.style.left = newLeft + 'px';
-        currentResizing.element.style.top = newTop + 'px';
-        currentResizing.element.style.width = newWidth + 'px';
-        currentResizing.element.style.height = newHeight + 'px';
-      }
-    });
-    
-    document.addEventListener('mouseup', () => {
-      currentDragged = null;
-      currentResizing = null;
-    });
-    
-    // Inicializa eventos para janelas existentes
-    document.querySelectorAll('.window').forEach(win => {
-      applyWindowEvents(win);
-      highestZIndex++;
-      win.style.zIndex = highestZIndex;
-    });
-    
-    // Adiciona nova janela dinamicamente
-    let windowCount = 1;
-    addWindowBtn.addEventListener('click', () => {
+    /* ---------- Criação das janelas de tipos diferenciados ---------- */
+
+    // 1. Janela Conectada
+    function createConnectedWindow() {
       windowCount++;
-      const newWin = document.createElement('div');
-      newWin.className = 'window';
-      newWin.style.top = (50 + 30 * windowCount) + 'px';
-      newWin.style.left = (50 + 30 * windowCount) + 'px';
-      newWin.id = 'window' + windowCount;
-      newWin.innerHTML = `
+      const win = document.createElement('div');
+      win.className = 'window';
+      win.style.top = (50 + 30 * windowCount) + 'px';
+      win.style.left = (50 + 30 * windowCount) + 'px';
+      win.id = 'window' + windowCount;
+      win.innerHTML = `
         <div class="title-bar">
-          <span>Janela ${windowCount}</span>
+          <span>Janela Conectada ${windowCount}</span>
           <div class="title-buttons">
             <button class="minimize">&#8211;</button>
             <button class="close">&#10005;</button>
           </div>
         </div>
         <div class="window-content">
-          Conteúdo da Janela ${windowCount}
+          <div class="chat-area"></div>
+          <button class="send-btn">Enviar Dado Aleatório</button>
         </div>
-        <!-- Handles de redimensionamento para todos os lados -->
-        <div class="resize-handle top-left"></div>
-        <div class="resize-handle top"></div>
-        <div class="resize-handle top-right"></div>
-        <div class="resize-handle right"></div>
-        <div class="resize-handle bottom-right"></div>
-        <div class="resize-handle bottom"></div>
-        <div class="resize-handle bottom-left"></div>
-        <div class="resize-handle left"></div>
       `;
-      document.body.appendChild(newWin);
-      applyWindowEvents(newWin);
-      bringToFront(newWin);
+      document.body.appendChild(win);
+      applyWindowEvents(win);
+      bringToFront(win);
+      
+      // Registra a janela para comunicação
+      const chatArea = win.querySelector('.chat-area');
+      connectedWindows.push({ id: win.id, chatArea: chatArea });
+      
+      // Lógica para enviar mensagem aleatória
+      const sendBtn = win.querySelector('.send-btn');
+      sendBtn.addEventListener('click', () => {
+        const randomData = Math.floor(Math.random() * 1000);
+        broadcastMessage(win.id, randomData);
+      });
+    }
+
+    // 2. Calculadora
+    function createCalculatorWindow() {
+      windowCount++;
+      const win = document.createElement('div');
+      win.className = 'window';
+      win.style.top = (50 + 30 * windowCount) + 'px';
+      win.style.left = (50 + 30 * windowCount) + 'px';
+      win.id = 'window' + windowCount;
+      win.innerHTML = `
+        <div class="title-bar">
+          <span>Calculadora ${windowCount}</span>
+          <div class="title-buttons">
+            <button class="minimize">&#8211;</button>
+            <button class="close">&#10005;</button>
+          </div>
+        </div>
+        <div class="window-content">
+          <div class="calc-container">
+            <input type="text" readonly value="0">
+            <div class="calc-buttons">
+              <button>7</button>
+              <button>8</button>
+              <button>9</button>
+              <button>/</button>
+              <button>4</button>
+              <button>5</button>
+              <button>6</button>
+              <button>*</button>
+              <button>1</button>
+              <button>2</button>
+              <button>3</button>
+              <button>-</button>
+              <button>0</button>
+              <button>C</button>
+              <button>=</button>
+              <button>+</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(win);
+      applyWindowEvents(win);
+      bringToFront(win);
+      
+      // Lógica da calculadora
+      const display = win.querySelector('input[type="text"]');
+      const buttons = win.querySelectorAll('.calc-buttons button');
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          const value = button.innerText;
+          if (value === 'C') {
+            display.value = '0';
+          } else if (value === '=') {
+            try {
+              display.value = eval(display.value);
+            } catch {
+              display.value = 'Erro';
+            }
+          } else {
+            if (display.value === '0' || display.value === 'Erro') {
+              display.value = value;
+            } else {
+              display.value += value;
+            }
+          }
+        });
+      });
+    }
+
+    // 3. Pedra Papel Tesoura
+    function createRPSWindow() {
+      windowCount++;
+      const win = document.createElement('div');
+      win.className = 'window';
+      win.style.top = (50 + 30 * windowCount) + 'px';
+      win.style.left = (50 + 30 * windowCount) + 'px';
+      win.id = 'window' + windowCount;
+      win.innerHTML = `
+        <div class="title-bar">
+          <span>Pedra Papel Tesoura ${windowCount}</span>
+          <div class="title-buttons">
+            <button class="minimize">&#8211;</button>
+            <button class="close">&#10005;</button>
+          </div>
+        </div>
+        <div class="window-content">
+          <div class="rps-container">
+            <div>Escolha:</div>
+            <button class="rps-btn" data-choice="Pedra">Pedra</button>
+            <button class="rps-btn" data-choice="Papel">Papel</button>
+            <button class="rps-btn" data-choice="Tesoura">Tesoura</button>
+            <div class="rps-result"></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(win);
+      applyWindowEvents(win);
+      bringToFront(win);
+      
+      // Lógica de Pedra Papel Tesoura
+      const buttons = win.querySelectorAll('.rps-btn');
+      const resultDiv = win.querySelector('.rps-result');
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          const userChoice = button.dataset.choice;
+          const choices = ['Pedra', 'Papel', 'Tesoura'];
+          const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+          let result = '';
+          if (userChoice === computerChoice) {
+            result = 'Empate!';
+          } else if (
+            (userChoice === 'Pedra' && computerChoice === 'Tesoura') ||
+            (userChoice === 'Papel' && computerChoice === 'Pedra') ||
+            (userChoice === 'Tesoura' && computerChoice === 'Papel')
+          ) {
+            result = 'Você Venceu!';
+          } else {
+            result = 'Você Perdeu!';
+          }
+          resultDiv.innerText = `Você: ${userChoice} | Computador: ${computerChoice} => ${result}`;
+        });
+      });
+    }
+
+    /* ---------- Lógica do menu de "Adicionar Janela" ---------- */
+    addWindowBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (addMenu.style.display === 'block') {
+        addMenu.style.display = 'none';
+      } else {
+        // Posiciona o menu logo abaixo do botão
+        const rect = addWindowBtn.getBoundingClientRect();
+        addMenu.style.top = rect.bottom + 'px';
+        addMenu.style.left = rect.left + 'px';
+        addMenu.style.display = 'block';
+      }
+    });
+    addMenu.addEventListener('click', (e) => e.stopPropagation());
+    document.addEventListener('click', () => {
+      addMenu.style.display = 'none';
+    });
+    const menuItems = addMenu.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const type = item.dataset.type;
+        if (type === 'connected') {
+          createConnectedWindow();
+        } else if (type === 'calculator') {
+          createCalculatorWindow();
+        } else if (type === 'rps') {
+          createRPSWindow();
+        }
+        addMenu.style.display = 'none';
+      });
     });
   </script>
 </body>

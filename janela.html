@@ -5,6 +5,9 @@
   <title>Simulação de Janelas Multi-Funcionais</title>
   <style>
     /* Estilização Global */
+    *{
+      user-select: none;
+    }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -63,6 +66,7 @@
       padding: 10px;
       height: calc(100% - 40px);
       overflow: auto;
+      user-select: initial;
     }
     /* Taskbar */
     #taskbar {
@@ -75,7 +79,7 @@
       display: flex;
       align-items: center;
       padding: 0 10px;
-      z-index: 1000;
+      z-index: 100000000;
     }
     #addWindow {
       background: #3498db;

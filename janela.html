@@ -204,8 +204,6 @@
     const dateTimeDiv = document.getElementById('dateTime');
 
     // Valores padrão para novas janelas e tema/estilo
-    let defaultWindowWidth = 300;
-    let defaultWindowHeight = 200;
     let currentTheme = "blue"; // opções: blue, red, green, dark
     let currentBg = "white";   // opções: white, gray, black
 
@@ -324,7 +322,11 @@
         const content = win.querySelector('.window-content');
         if (content) {
           content.style.background = currentBg;
-        }
+          if (currentBg == "black"){
+            content.style.color = "white";  
+          }
+          else{
+            content.style.color = "black";
       });
     }
 
@@ -512,11 +514,6 @@
               <option value="gray" ${currentBg==='gray'?'selected':''}>Cinza</option>
               <option value="black" ${currentBg==='black'?'selected':''}>Preto</option>
             </select>
-            <h3>Tamanho Padrão das Janelas</h3>
-            <label for="defaultWidth">Largura:</label>
-            <input type="number" id="defaultWidth" value="${defaultWindowWidth}">
-            <label for="defaultHeight">Altura:</label>
-            <input type="number" id="defaultHeight" value="${defaultWindowHeight}">
             <br>
             <button id="saveOptionsBtn">Salvar Opções</button>
           </div>
@@ -530,12 +527,9 @@
       saveBtn.addEventListener('click', () => {
         const themeSelect = win.querySelector('#themeSelect');
         const bgSelect = win.querySelector('#bgSelect');
-        const defaultWidthInput = win.querySelector('#defaultWidth');
-        const defaultHeightInput = win.querySelector('#defaultHeight');
         currentTheme = themeSelect.value;
         currentBg = bgSelect.value;
         updateWindowStyles();
-        alert("Opções salvas!");
       });
     }
 

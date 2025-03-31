@@ -8,7 +8,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f0f0f0;
+      background: white;
       overflow: hidden;
       height: 100vh;
     }
@@ -22,7 +22,6 @@
       transition: opacity 0.3s ease;
     }
     .title-bar {
-      background: linear-gradient(90deg, #3498db, #2980b9);
       color: #fff;
       padding: 8px;
       cursor: move;
@@ -165,7 +164,6 @@
       display: block;
       margin: 5px 0 2px;
     }
-    .options-container input,
     .options-container select {
       width: 100%;
       padding: 4px;
@@ -193,7 +191,7 @@
   </div>
 
   <script>
-    // Variáveis globais
+    // Variáveis globais de arraste e empilhamento
     let currentDragged = null;
     let dragOffsetX = 0, dragOffsetY = 0;
     let highestZIndex = 1;
@@ -203,14 +201,27 @@
     const addMenu = document.getElementById('addMenu');
     const dateTimeDiv = document.getElementById('dateTime');
 
-    // Valores padrão para novas janelas e tema/estilo
-    let currentTheme = "blue"; // opções: blue, red, green, dark
-    let currentBg = "white";   // opções: white, gray, black
+    // Configurações de tema e cores
+    let currentTheme = "azul";        // Tema da titlebar
+    let currentWindowBg = "white";      // Background da área de conteúdo (janela)
+    let desktopBg = "white";            // Background do desktop
 
-    // Array global para janelas conectadas
-    const connectedWindows = [];
+    // Mapeamento de temas para gradientes da titlebar
+    const themeGradients = {
+      azul: "linear-gradient(90deg, #3498db, #2980b9)",
+      vermelho: "linear-gradient(90deg, #e74c3c, #c0392b)",
+      verde: "linear-gradient(90deg, #27ae60, #2ecc71)",
+      roxo: "linear-gradient(90deg, #8e44ad, #9b59b6)",
+      preto: "linear-gradient(90deg, #2c3e50, #34495e)",
+      laranja: "linear-gradient(90deg, #e67e22, #d35400)"
+    };
 
-    // Atualiza data e hora na taskbar a cada segundo
+    // Lista de cores consideradas escuras
+    function isDark(color) {
+      return color === "black" || color === "gray";
+    }
+
+    // Atualiza data e hora na taskbar
     function updateDateTime() {
       const now = new Date();
       dateTimeDiv.innerText = now.toLocaleString();
@@ -218,13 +229,13 @@
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
-    // Movimento das janelas
+    // Movimento de arraste das janelas
     document.addEventListener('mousemove', (e) => {
       if (currentDragged) {
         let newX = e.clientX - dragOffsetX;
         let newY = e.clientY - dragOffsetY;
         newX = Math.max(0, Math.min(newX, window.innerWidth - currentDragged.offsetWidth));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - currentDragged.offsetHeight - 40));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - currentDragged.offsetHeight - 40)); // 40px para a taskbar
         currentDragged.style.left = newX + 'px';
         currentDragged.style.top = newY + 'px';
       }
@@ -233,13 +244,13 @@
       currentDragged = null;
     });
 
-    // Função que traz uma janela para o topo
+    // Traz a janela para o topo
     function bringToFront(win) {
       highestZIndex++;
       win.style.zIndex = highestZIndex;
     }
 
-    // Minimiza a janela: cria um botão na taskbar para restauração
+    // Minimiza a janela (cria botão para restauração na taskbar)
     function minimizeWindow(win) {
       if (win._minimized) return;
       win._minimized = true;
@@ -268,7 +279,7 @@
       bringToFront(win);
     }
 
-    // Fecha a janela – se for conectada, também remove do array
+    // Fecha a janela (e remove do array de janelas conectadas se aplicável)
     function closeWindow(win) {
       const index = connectedWindows.findIndex(conn => conn.id === win.id);
       if (index !== -1) {
@@ -277,7 +288,7 @@
       if (win.parentNode) win.parentNode.removeChild(win);
     }
 
-    // Aplica eventos básicos à janela: arraste pela barra, minimizar e fechar
+    // Aplica os eventos básicos à janela (arraste, minimizar, fechar)
     function applyWindowEvents(win) {
       const titleBar = win.querySelector('.title-bar');
       titleBar.addEventListener('mousedown', (e) => {
@@ -299,47 +310,48 @@
       });
     }
 
-    // Atualiza os estilos de todas as janelas de acordo com o tema e background escolhidos
+    // Atualiza os estilos de todas as janelas e do desktop conforme as opções escolhidas
     function updateWindowStyles() {
+      // Atualiza cada janela
       const windows = document.querySelectorAll('.window');
       windows.forEach(win => {
         const titleBar = win.querySelector('.title-bar');
-        let gradient;
-        if (currentTheme === "blue") {
-          gradient = "linear-gradient(90deg, #3498db, #2980b9)";
-        } else if (currentTheme === "red") {
-          gradient = "linear-gradient(90deg, #e74c3c, #c0392b)";
-        } else if (currentTheme === "green") {
-          gradient = "linear-gradient(90deg, #27ae60, #2ecc71)";
-        } else if (currentTheme === "dark") {
-          gradient = "linear-gradient(90deg, #2c3e50, #34495e)";
-        } else {
-          gradient = "linear-gradient(90deg, #3498db, #2980b9)";
-        }
         if (titleBar) {
-          titleBar.style.background = gradient;
+          titleBar.style.background = themeGradients[currentTheme] || themeGradients["azul"];
         }
         const content = win.querySelector('.window-content');
         if (content) {
-          content.style.background = currentBg;
-          if (currentBg == "black"){
-            content.style.color = "white";  
-          }
-          else{
-            content.style.color = "black";
-          }
+          content.style.background = currentWindowBg;
+          // Se o background for escuro, muda o texto para branco, senão para preto
+          content.style.color = isDark(currentWindowBg) ? "white" : "black";
+        }
+      });
+      // Atualiza o desktop
+      document.body.style.background = desktopBg;
+    }
+
+    // Função para enviar mensagem entre as janelas conectadas
+    function broadcastMessage(senderId, message) {
+      connectedWindows.forEach(conn => {
+        const chatArea = conn.chatArea;
+        const msgElement = document.createElement('p');
+        msgElement.innerText = `Janela ${senderId}: ${message}`;
+        chatArea.appendChild(msgElement);
+        chatArea.scrollTop = chatArea.scrollHeight;
       });
     }
 
-    // Janela Conectada: permite enviar um dado aleatório para todas as janelas conectadas
+    /* ---------- Criação das Janelas de Tipos Diferentes ---------- */
+
+    // 1. Janela Conectada (350×250)
     function createConnectedWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
       win.style.top = (50 + 30 * windowCount) + 'px';
       win.style.left = (50 + 30 * windowCount) + 'px';
-      win.style.width = 300 + "px";
-      win.style.height = 500 + "px";
+      win.style.width = "350px";
+      win.style.height = "250px";
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
@@ -367,15 +379,15 @@
       });
     }
 
-    // Pet Virtual: exibe um pet com níveis de fome e felicidade, com botões para alimentar e brincar
+    // 2. Pet Virtual (300×300)
     function createPetWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
       win.style.top = (50 + 30 * windowCount) + 'px';
       win.style.left = (50 + 30 * windowCount) + 'px';
-      win.style.width = 300 + "px";
-      win.style.height = 300 + "px";
+      win.style.width = "300px";
+      win.style.height = "300px";
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
@@ -424,15 +436,15 @@
       }, 5000);
     }
 
-    // Pedra Papel Tesoura: jogo simples contra o computador
+    // 3. Pedra Papel Tesoura (320×240)
     function createRPSWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
       win.style.top = (50 + 30 * windowCount) + 'px';
       win.style.left = (50 + 30 * windowCount) + 'px';
-      win.style.width = 400 + "px";
-      win.style.height = 300 + "px";
+      win.style.width = "320px";
+      win.style.height = "240px";
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
@@ -480,15 +492,15 @@
       });
     }
 
-    // Opções: permite que o usuário mude o tema, o background e os tamanhos padrão para novas janelas.
+    // 4. Opções (Janela de Configurações) – 300×250
     function createOptionsWindow() {
       windowCount++;
       const win = document.createElement('div');
       win.className = 'window';
       win.style.top = (50 + 30 * windowCount) + 'px';
       win.style.left = (50 + 30 * windowCount) + 'px';
-      win.style.width = 500 + "px";
-      win.style.height = 550 + "px";
+      win.style.width = "300px";
+      win.style.height = "250px";
       win.id = 'window' + windowCount;
       win.innerHTML = `
         <div class="title-bar">
@@ -500,20 +512,34 @@
         </div>
         <div class="window-content">
           <div class="options-container">
-            <h3>Opções de Tema</h3>
+            <h3>Opções de Tema da Titlebar</h3>
             <label for="themeSelect">Tema:</label>
             <select id="themeSelect">
-              <option value="blue" ${currentTheme==='blue'?'selected':''}>Azul</option>
-              <option value="red" ${currentTheme==='red'?'selected':''}>Vermelho</option>
-              <option value="green" ${currentTheme==='green'?'selected':''}>Verde</option>
-              <option value="dark" ${currentTheme==='dark'?'selected':''}>Escuro</option>
+              <option value="azul" ${currentTheme==='azul'?'selected':''}>Azul</option>
+              <option value="vermelho" ${currentTheme==='vermelho'?'selected':''}>Vermelho</option>
+              <option value="verde" ${currentTheme==='verde'?'selected':''}>Verde</option>
+              <option value="roxo" ${currentTheme==='roxo'?'selected':''}>Roxo</option>
+              <option value="preto" ${currentTheme==='preto'?'selected':''}>Preto</option>
+              <option value="laranja" ${currentTheme==='laranja'?'selected':''}>Laranja</option>
             </select>
-            <h3>Opções de Background</h3>
-            <label for="bgSelect">Background das Janelas:</label>
-            <select id="bgSelect">
-              <option value="white" ${currentBg==='white'?'selected':''}>Branco</option>
-              <option value="gray" ${currentBg==='gray'?'selected':''}>Cinza</option>
-              <option value="black" ${currentBg==='black'?'selected':''}>Preto</option>
+            <h3>Background da Janela</h3>
+            <label for="windowBgSelect">Cor:</label>
+            <select id="windowBgSelect">
+              <option value="white" ${currentWindowBg==='white'?'selected':''}>Branco</option>
+              <option value="gray" ${currentWindowBg==='gray'?'selected':''}>Cinza</option>
+              <option value="black" ${currentWindowBg==='black'?'selected':''}>Preto</option>
+              <option value="yellow" ${currentWindowBg==='yellow'?'selected':''}>Amarelo</option>
+              <option value="pink" ${currentWindowBg==='pink'?'selected':''}>Rosa</option>
+              <option value="lightblue" ${currentWindowBg==='lightblue'?'selected':''}>Azul Claro</option>
+            </select>
+            <h3>Background do Desktop</h3>
+            <label for="desktopBgSelect">Cor:</label>
+            <select id="desktopBgSelect">
+              <option value="white" ${desktopBg==='white'?'selected':''}>Branco</option>
+              <option value="lightgray" ${desktopBg==='lightgray'?'selected':''}>Cinza Claro</option>
+              <option value="black" ${desktopBg==='black'?'selected':''}>Preto</option>
+              <option value="skyblue" ${desktopBg==='skyblue'?'selected':''}>Azul Céu</option>
+              <option value="lightgreen" ${desktopBg==='lightgreen'?'selected':''}>Verde Claro</option>
             </select>
             <br>
             <button id="saveOptionsBtn">Salvar Opções</button>
@@ -527,25 +553,17 @@
       const saveBtn = win.querySelector('#saveOptionsBtn');
       saveBtn.addEventListener('click', () => {
         const themeSelect = win.querySelector('#themeSelect');
-        const bgSelect = win.querySelector('#bgSelect');
+        const windowBgSelect = win.querySelector('#windowBgSelect');
+        const desktopBgSelect = win.querySelector('#desktopBgSelect');
         currentTheme = themeSelect.value;
-        currentBg = bgSelect.value;
+        currentWindowBg = windowBgSelect.value;
+        desktopBg = desktopBgSelect.value;
         updateWindowStyles();
+        alert("Opções salvas!");
       });
     }
 
-    // Função para enviar mensagem entre as janelas conectadas
-    function broadcastMessage(senderId, message) {
-      connectedWindows.forEach(conn => {
-        const chatArea = conn.chatArea;
-        const msgElement = document.createElement('p');
-        msgElement.innerText = `Janela ${senderId}: ${message}`;
-        chatArea.appendChild(msgElement);
-        chatArea.scrollTop = chatArea.scrollHeight;
-      });
-    }
-
-    /* ---------- Lógica do menu de "Adicionar Janela" ---------- */
+    /* ---------- Lógica do Menu de "Adicionar Janela" ---------- */
     addWindowBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (addMenu.style.display === 'block') {

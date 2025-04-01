@@ -57,6 +57,7 @@
     if ('BroadcastChannel' in window) {
       // Cria um canal com o nome "exemplo_canal"
       const canal = new BroadcastChannel('exemplo_canal');
+      canal.postMessage(`${tabName} foi aberta, diga olá!`);
 
       // Função para adicionar mensagens na área de log
       const adicionarLog = mensagem => {

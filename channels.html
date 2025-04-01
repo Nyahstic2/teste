@@ -10,6 +10,12 @@
       margin: 20px;
       background-color: #f0f0f0;
     }
+    #tabID {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #007BFF;
+      margin-bottom: 10px;
+    }
     h1 {
       color: #333;
     }
@@ -28,6 +34,9 @@
   </style>
 </head>
 <body>
+  <!-- Exibe o ID aleatório no começo da página -->
+  <div id="tabID"></div>
+
   <h1>Exemplo de Broadcast Channel API</h1>
   <p>Clique no botão abaixo para enviar uma mensagem para todas as abas/janelas abertas deste mesmo domínio.</p>
   <button id="sendMessage">Enviar Mensagem</button>
@@ -36,6 +45,14 @@
   <div id="log" class="log"></div>
 
   <script>
+    // Gera um nome aleatório e único para a aba, por exemplo "Tab_ab12cd34"
+    const tabName = 'Tab_' + Math.random().toString(36).substring(2, 10);
+    
+    // Atualiza o elemento no início da página com o ID da aba
+    document.getElementById('tabID').textContent = 'ID da aba: ' + tabName;
+    // Atualiza o título da página para incluir o identificador da aba
+    document.title = `(${tabName}) Conversa com BroadcastChannel`;
+
     // Verifica se o navegador suporta Broadcast Channel API
     if ('BroadcastChannel' in window) {
       // Cria um canal com o nome "exemplo_canal"
@@ -49,24 +66,33 @@
         logDiv.appendChild(p);
       };
 
-      // Manipulador de mensagem recebida via BroadcastChannel
+      // Ao carregar a página, exibe a identificação da aba na área de log
+      adicionarLog(`Esta aba é: ${tabName}`);
+
+      // Manipulador para exibir as mensagens recebidas via BroadcastChannel
       canal.onmessage = event => {
-         if (event.data != "#CLEAR#") adicionarLog('Recebido: ' + event.data);
-         else document.getElementById('log').innerHTML = '';
+        if (event.data !== "#CLEAR#")
+          adicionarLog('Recebido: ' + event.data);
+        else
+          document.getElementById('log').innerHTML = '';
       };
 
       // Envia mensagem para o canal quando o botão for clicado
       document.getElementById('sendMessage').addEventListener('click', () => {
         const mensagem = prompt("Qual é sua mensagem?");
-        canal.postMessage(mensagem);
-        adicionarLog('Enviado: ' + mensagem);
+        if (mensagem && mensagem.trim() !== "") {
+          const mensagemCompleta = `${tabName}: ${mensagem}`;
+          canal.postMessage(mensagemCompleta);
+          adicionarLog('Enviado: ' + mensagemCompleta);
+        }
       });
 
-      // Limpa o log de mensagens
+      // Limpa o log de mensagens e envia um comando de limpeza para as demais abas
       document.getElementById('clearLog').addEventListener('click', () => {
         document.getElementById('log').innerHTML = '';
         canal.postMessage("#CLEAR#");
       });
+      
     } else {
       alert('Seu navegador não suporta a Broadcast Channel API.');
     }

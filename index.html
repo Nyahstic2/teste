@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Links Profissionais</title>
+  <style>
+    /* Estilos gerais */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    /* Container centralizado */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    /* Título */
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Lista de links */
+    ul.links-list {
+      list-style: none;
+      padding: 0;
+    }
+    ul.links-list li {
+      margin: 10px 0;
+    }
+    /* Botões/links com aparência profissional */
+    ul.links-list li a {
+      display: block;
+      padding: 15px;
+      background: #007BFF;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 3px;
+      transition: background 0.3s ease;
+    }
+    ul.links-list li a:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Links Profissionais</h1>
+    <ul class="links-list" id="linksList">
+      <!-- Os links serão inseridos aqui via JavaScript -->
+    </ul>
+  </div>
+
+  <script>
+    // Busca o arquivo JSON e preenche a lista de links automaticamente
+    fetch('./links.json')
+      .then(function(response) {
+        if (!response.ok) {
+          return [
+            {nome: "Exemplo (O JSON Retornou nada ou não encontrei o arquivo)", url: "https://www.example.com/"}
+          ];
+        }
+        return response.json();
+      })
+      .then(function(data) {
+        const list = document.getElementById('linksList');
+        data.forEach(function(link) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = link.url;
+          a.textContent = link.nome;
+          a.target = '_blank';
+          li.appendChild(a);
+          list.appendChild(li);
+        });
+      })
+      .catch(function(error) {
+        console.error('Erro ao processar o JSON:', error);
+      });
+  </script>
+</body>
+</html>
